@@ -31,10 +31,14 @@ create table if not exists public.user_profiles (
   real_number      text,    -- actual provisioned Twilio/Vapi number
   agent_id         text,    -- alphaclaw agent id once created
   vapi_assistant_id text,   -- Vapi assistant for inbound calls
+  custom_instructions text, -- user-supplied "tell your AI about you" textarea
   provisioned_at   timestamptz,
   created_at       timestamptz not null default now(),
   updated_at       timestamptz not null default now()
 );
+
+-- For existing deployments — add new column if missing
+alter table public.user_profiles add column if not exists custom_instructions text;
 
 alter table public.user_profiles enable row level security;
 create policy "users read own profile" on public.user_profiles

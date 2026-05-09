@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
+    <title>Q · Your personal AI · $0.66/day</title>
+    <meta name="description" content="Your own personal AI with a real phone number, email, and computer." />
+    <meta name="theme-color" content="#000000" />
+    <meta property="og:title" content="Q · Your personal AI" />
+    <meta property="og:description" content="Tell it what to do. It calls, emails, books. $0.66 a day." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg: #000;
+        --fg: #fff;
+        --fg-muted: rgba(255,255,255,0.55);
+        --fg-faint: rgba(255,255,255,0.32);
+        --border: rgba(255, 255, 255, 0.10);
+        --accent: #00ffd1;
+        --accent-2: #7c5cff;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      html, body {
+        height: 100%; min-height: 100vh; min-height: 100dvh;
+        background: var(--bg); color: var(--fg);
+        font-family: 'Inter', -apple-system, system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+        line-height: 1.4; letter-spacing: -0.01em;
+        overflow-x: hidden;
+      }
+      a { color: inherit; text-decoration: none; }
+      button { font-family: inherit; cursor: pointer; }
+
+      body::before {
+        content: ""; position: fixed; inset: 0; z-index: -1;
+        background:
+          radial-gradient(circle at 18% 0%, rgba(124,92,255,0.16) 0%, transparent 50%),
+          radial-gradient(circle at 82% 100%, rgba(0,255,209,0.14) 0%, transparent 50%);
+        pointer-events: none;
+      }
+
+      .page {
+        min-height: 100vh; min-height: 100dvh;
+        display: flex; flex-direction: column;
+        max-width: 1100px; margin: 0 auto;
+        padding: 0 32px;
+      }
+      @media (max-width: 720px) { .page { padding: 0 18px; } }
+
+      /* Top nav */
+      nav {
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 22px 0;
+        flex-shrink: 0;
+      }
+      nav .logo { font-weight: 700; font-size: 22px; letter-spacing: -0.02em; }
+      nav .logo .grad {
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+        -webkit-background-clip: text; background-clip: text; color: transparent;
+      }
+      .nav-pills { display: flex; align-items: center; gap: 10px; }
+      .pill-slot {
+        display: inline-flex; align-items: center; gap: 7px;
+        background: rgba(0,0,0,0.4); border: 1px solid var(--border);
+        padding: 6px 12px; border-radius: 999px; font-size: 11px; font-weight: 600;
+      }
+      .pill-slot .pulse {
+        width: 7px; height: 7px; border-radius: 50%; background: var(--accent);
+        box-shadow: 0 0 10px var(--accent);
+        animation: pulse 1.6s ease-in-out infinite;
+      }
+      @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+      .pill-slot .num { color: var(--accent); font-family: 'JetBrains Mono', monospace; }
+      .pill-slot .lbl { color: var(--fg-muted); font-weight: 500; }
+      @media (max-width: 380px) { .pill-slot .lbl { display: none; } }
+      nav .signin-btn {
+        background: rgba(255,255,255,0.08); border: 1px solid var(--border);
+        padding: 8px 14px; border-radius: 999px; color: var(--fg);
+        font-size: 13px; font-weight: 500;
+        transition: background 200ms ease;
+      }
+      nav .signin-btn:hover { background: rgba(255,255,255,0.14); }
+
+      /* HERO — single fold */
+      .hero {
+        flex: 1;
+        display: flex; flex-direction: column; align-items: center; justify-content: center;
+        text-align: center; padding: 32px 0 64px;
+        gap: 28px;
+      }
+      h1 {
+        font-size: clamp(54px, 10vw, 112px);
+        font-weight: 900; letter-spacing: -0.05em; line-height: 0.92;
+        max-width: 820px;
+      }
+      h1 .grad {
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+        -webkit-background-clip: text; background-clip: text; color: transparent;
+      }
+      .lead {
+        color: var(--fg-muted);
+        font-size: clamp(18px, 1.8vw, 22px);
+        font-weight: 400; line-height: 1.5; max-width: 520px;
+      }
+
+      /* THE INPUT — primary CTA */
+      .ai-prompt-box {
+        width: 100%; max-width: 660px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.16);
+        border-radius: 28px;
+        padding: 6px;
+        position: relative;
+        transition: border-color 220ms ease, box-shadow 220ms ease;
+        box-shadow: 0 30px 60px rgba(0,0,0,0.4);
+      }
+      .ai-prompt-box::before {
+        content: ""; position: absolute; inset: -1px;
+        border-radius: 29px; padding: 1px; pointer-events: none;
+        background: linear-gradient(135deg, rgba(0,255,209,0.5), rgba(124,92,255,0.4), transparent);
+        -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+        mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+        -webkit-mask-composite: xor; mask-composite: exclude;
+        opacity: 0.55;
+      }
+      .ai-prompt-box.focused { border-color: rgba(0,255,209,0.5); }
+      .ai-prompt-row {
+        display: flex; align-items: center; gap: 8px;
+        background: transparent;
+      }
+      .ai-prompt-orb {
+        width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 800; color: #000; font-size: 15px;
+        margin-left: 8px;
+      }
+      .ai-prompt-input {
+        flex: 1; background: transparent; border: none; outline: none;
+        color: var(--fg); font-family: inherit; font-size: clamp(16px, 1.7vw, 18px);
+        padding: 16px 0;
+      }
+      .ai-prompt-input::placeholder { color: var(--fg-faint); }
+      .ai-prompt-submit {
+        background: linear-gradient(135deg, var(--accent) 0%, #14e8c1 100%);
+        color: #000; border: none;
+        border-radius: 999px;
+        padding: 14px 24px; font-size: 15px; font-weight: 800;
+        margin: 6px;
+        transition: transform 150ms ease, box-shadow 220ms ease;
+        flex-shrink: 0;
+        box-shadow: 0 6px 20px rgba(0,255,209,0.25);
+      }
+      .ai-prompt-submit:hover { transform: scale(1.04); box-shadow: 0 10px 28px rgba(0,255,209,0.4); }
+      .ai-prompt-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+      @media (max-width: 540px) {
+        .ai-prompt-orb { display: none; }
+        .ai-prompt-submit { padding: 10px 16px; font-size: 13px; }
+      }
+
+      /* Suggestions row — clickable shortcuts */
+      .suggestions {
+        display: flex; flex-wrap: wrap; gap: 8px; justify-content: center;
+        max-width: 660px;
+      }
+      .suggest {
+        font-size: 12px; padding: 8px 14px; border-radius: 999px;
+        background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+        color: var(--fg-muted); cursor: pointer;
+        transition: all 200ms ease;
+      }
+      .suggest:hover { color: var(--fg); border-color: rgba(0,255,209,0.4); background: rgba(0,255,209,0.04); }
+
+      /* Reveal flow — progressive 4-step card */
+      .reveal-flow {
+        width: 100%; max-width: 640px;
+        opacity: 0; transform: translateY(20px);
+        transition: opacity 500ms cubic-bezier(0.22, 1, 0.36, 1), transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
+        max-height: 0; overflow: hidden;
+      }
+      .reveal-flow.show {
+        opacity: 1; transform: translateY(0); max-height: 1200px;
+      }
+      .reveal-step {
+        background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+        border-radius: 22px; padding: 28px;
+        margin-top: 14px;
+        display: none;
+        flex-direction: column; align-items: center; text-align: center;
+        animation: stepIn 500ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      }
+      .reveal-step.show { display: flex; }
+      @keyframes stepIn {
+        from { opacity: 0; transform: translateY(16px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      .step-header {
+        display: flex; align-items: center; gap: 10px;
+        font-size: 11px; color: var(--fg-muted);
+        letter-spacing: 0.16em; text-transform: uppercase; font-weight: 700;
+        margin-bottom: 18px;
+      }
+      .step-header .pulse-mini {
+        width: 7px; height: 7px; border-radius: 50%; background: var(--accent);
+        box-shadow: 0 0 8px var(--accent);
+        animation: blink 1.4s steps(2) infinite;
+      }
+      @keyframes blink { 50% { opacity: 0.3; } }
+
+      .gen-status {
+        font-size: 17px; font-weight: 600; color: var(--fg);
+        margin-bottom: 18px; text-align: center;
+      }
+      .gen-status .dots { display: inline-block; min-width: 16px; text-align: left; color: var(--accent); }
+
+      .reveal-rows {
+        display: flex; flex-direction: column; gap: 12px; align-items: center;
+        width: 100%; margin-bottom: 22px;
+      }
+      .reveal-row {
+        display: flex; align-items: center; gap: 12px;
+        background: rgba(0,255,209,0.06); border: 1px solid rgba(0,255,209,0.25);
+        border-radius: 14px; padding: 12px 18px;
+        font-family: 'JetBrains Mono', monospace; font-weight: 700;
+        font-size: clamp(15px, 2vw, 18px);
+        color: var(--accent);
+        opacity: 0; transform: translateY(8px);
+        animation: rowIn 500ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      }
+      .reveal-row.delay-1 { animation-delay: 200ms; }
+      .reveal-row.delay-2 { animation-delay: 500ms; }
+      @keyframes rowIn { to { opacity: 1; transform: translateY(0); } }
+      .reveal-row .ic { font-size: 20px; }
+
+      /* Capability cards */
+      .cap-cards {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+        width: 100%; margin-bottom: 24px;
+      }
+      @media (max-width: 540px) { .cap-cards { grid-template-columns: 1fr; } }
+      .cap-card {
+        background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+        border-radius: 16px; padding: 18px;
+        text-align: left;
+      }
+      .cap-card .cap-ic { font-size: 30px; margin-bottom: 8px; }
+      .cap-card .cap-name {
+        font-size: 18px; font-weight: 700; margin-bottom: 6px;
+      }
+      .cap-card .cap-line { color: var(--fg-muted); font-size: 13.5px; line-height: 1.45; }
+
+      /* Name capture */
+      .name-prompt {
+        font-size: 22px; font-weight: 700; margin-bottom: 18px;
+      }
+      .name-input-wrap { width: 100%; max-width: 320px; margin-bottom: 14px; }
+      .name-input {
+        width: 100%;
+        background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+        border-radius: 16px; padding: 16px 20px;
+        color: var(--fg); font-family: inherit;
+        font-size: 22px; font-weight: 700; text-align: center;
+        outline: none;
+        transition: border-color 200ms ease, background 200ms ease;
+      }
+      .name-input:focus { border-color: rgba(0,255,209,0.5); background: rgba(255,255,255,0.06); }
+      .name-input::placeholder { color: var(--fg-faint); font-weight: 700; }
+
+      .name-suggests {
+        display: flex; flex-wrap: wrap; gap: 6px; justify-content: center;
+        margin-bottom: 22px;
+      }
+      .name-suggest {
+        background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+        color: var(--fg); font-size: 13px; font-weight: 600;
+        padding: 7px 13px; border-radius: 999px;
+        transition: all 180ms ease;
+      }
+      .name-suggest:hover { background: rgba(0,255,209,0.08); border-color: rgba(0,255,209,0.4); color: var(--accent); }
+
+      /* Final CTA inside reveal flow */
+      .final-block { display: flex; flex-direction: column; align-items: center; gap: 12px; width: 100%; }
+      .final-headline {
+        font-size: clamp(28px, 4vw, 42px); font-weight: 800;
+        letter-spacing: -0.02em; line-height: 1.1; margin: 6px 0 4px;
+      }
+      .final-headline .grad {
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+        -webkit-background-clip: text; background-clip: text; color: transparent;
+      }
+      .final-sub { color: var(--fg-muted); font-size: 15px; margin-bottom: 14px; }
+      .final-sub strong { color: var(--fg); font-weight: 700; }
+      .final-foot { color: var(--fg-faint); font-size: 11px; margin-top: 10px; }
+
+      /* CTA buttons */
+      .cta {
+        display: inline-flex; align-items: center; gap: 10px;
+        background: #fff; color: #000;
+        font-weight: 700; font-size: 16px;
+        padding: 14px 28px; border-radius: 999px; border: none;
+        transition: transform 200ms ease, background 200ms ease, box-shadow 220ms ease;
+        cursor: pointer;
+      }
+      .cta:hover { background: var(--accent); transform: translateY(-1px); box-shadow: 0 12px 32px rgba(0,255,209,0.3); }
+      .cta-arrow { font-size: 18px; line-height: 1; }
+      .cta-step { margin-top: 4px; }
+      .cta-final {
+        background: linear-gradient(135deg, var(--accent) 0%, #14e8c1 100%);
+        font-size: 18px; padding: 18px 32px; font-weight: 800;
+        box-shadow: 0 14px 36px rgba(0,255,209,0.35);
+      }
+      .cta-final:hover { transform: translateY(-2px); box-shadow: 0 18px 44px rgba(0,255,209,0.5); }
+      .cta-line { color: var(--fg-faint); font-size: 12px; }
+      .cta-line .strong { color: var(--fg); font-weight: 600; }
+
+      /* Tiny price warn under input */
+      .price-tease {
+        display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap;
+        font-size: 13px; color: var(--fg-faint);
+        justify-content: center;
+      }
+      .price-tease strong { color: var(--accent); font-weight: 700; }
+      .price-tease .warn-strong { color: #ffd76b; font-weight: 700; }
+
+      /* Live countdown */
+      .countdown {
+        display: inline-flex; align-items: center; gap: 12px; flex-wrap: wrap;
+        background: rgba(255,180,40,0.06); border: 1px solid rgba(255,180,40,0.25);
+        padding: 10px 18px; border-radius: 999px;
+        justify-content: center;
+      }
+      .countdown-label {
+        font-size: 10px; letter-spacing: 0.18em; font-weight: 700;
+        color: #ffd76b;
+      }
+      .countdown-time {
+        display: inline-flex; align-items: baseline; gap: 4px;
+        font-family: 'JetBrains Mono', monospace;
+      }
+      .countdown-time .ct-num {
+        font-size: 18px; font-weight: 700; color: #fff;
+        font-variant-numeric: tabular-nums;
+        min-width: 22px; display: inline-block; text-align: center;
+      }
+      .countdown-time .ct-unit {
+        font-size: 11px; color: var(--fg-muted); font-weight: 500; margin-right: 4px;
+      }
+
+      /* Testimonial */
+      .testi {
+        max-width: 540px; text-align: center;
+        background: rgba(255,255,255,0.025); border: 1px solid var(--border);
+        border-radius: 18px; padding: 18px 22px;
+      }
+      .testi-quote {
+        font-size: 15px; color: var(--fg); line-height: 1.5; font-weight: 500;
+        font-style: italic;
+      }
+      .testi-name {
+        margin-top: 10px; font-size: 12px; color: var(--fg-muted); font-weight: 500;
+      }
+
+      /* Footer */
+      footer {
+        padding: 22px 0;
+        text-align: center; color: var(--fg-faint); font-size: 11px;
+        border-top: 1px solid var(--border); margin-top: 16px;
+      }
+      footer a { color: var(--fg-muted); margin: 0 10px; }
+      footer a:hover { color: var(--fg); }
+
+      /* Recent ticker (bottom-left) */
+      .recent-ticker {
+        position: fixed; bottom: 18px; left: 18px; z-index: 50;
+        background: rgba(0,0,0,0.7); backdrop-filter: blur(20px);
+        border: 1px solid var(--border);
+        border-radius: 14px; padding: 10px 14px;
+        max-width: 280px;
+        opacity: 0; transform: translateY(20px);
+        transition: opacity 400ms ease, transform 400ms ease;
+        pointer-events: none;
+      }
+      .recent-ticker.show { opacity: 1; transform: translateY(0); }
+      .recent-ticker .label { font-size: 10px; letter-spacing: 0.14em; color: var(--accent); font-weight: 700; }
+      .recent-ticker .who { font-size: 13px; font-weight: 600; margin-top: 4px; }
+      .recent-ticker .when { font-size: 11px; color: var(--fg-muted); margin-top: 2px; }
+      @media (max-width: 540px) { .recent-ticker { max-width: 220px; bottom: 12px; left: 12px; } }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+
+      <nav>
+        <div class="logo">Q<span class="grad">.</span></div>
+        <div class="nav-pills">
+          <div class="pill-slot">
+            <div class="pulse"></div>
+            <span class="num" id="topTaken">—</span>
+            <span class="num">/1000</span>
+            <span class="lbl">spots taken</span>
+          </div>
+          <a href="/login.html" class="signin-btn">Sign in</a>
+        </div>
+      </nav>
+
+      <main class="hero">
+
+        <h1>Stop doing<br/>the boring <span class="grad">sh*t</span>.</h1>
+        <p class="lead">An AI with a real phone, email, and computer. Tell it what to do — it actually does it.</p>
+
+        <div class="ai-prompt-box" id="promptBox">
+          <div class="ai-prompt-row">
+            <div class="ai-prompt-orb">Q</div>
+            <input id="promptInput" class="ai-prompt-input" type="text" autocomplete="off"
+              placeholder="What do you want it to do?" />
+            <button id="promptSubmit" class="ai-prompt-submit">Generate phone + email →</button>
+          </div>
+        </div>
+
+        <div class="suggestions" id="suggestions">
+          <button class="suggest" data-prompt="Call my dentist and reschedule to next Wednesday after 4pm">📞 Call my dentist</button>
+          <button class="suggest" data-prompt="Reply to my landlord — ask for a one-week rent extension, polite but firm">📧 Reply to my landlord</button>
+          <button class="suggest" data-prompt="Find me a flight to NYC under $300 next weekend and book it">🌐 Book a flight</button>
+          <button class="suggest" data-prompt="Cancel my Comcast — handle the retention pitch, don't accept anything over $40/mo">📞 Cancel my Comcast</button>
+        </div>
+
+        <!-- Live countdown to price increase -->
+        <div class="countdown" id="countdown">
+          <span class="countdown-label">PRICE LOCKS IN</span>
+          <span class="countdown-time">
+            <span class="ct-num" id="ctd-d">—</span><span class="ct-unit">d</span>
+            <span class="ct-num" id="ctd-h">—</span><span class="ct-unit">h</span>
+            <span class="ct-num" id="ctd-m">—</span><span class="ct-unit">m</span>
+            <span class="ct-num" id="ctd-s">—</span><span class="ct-unit">s</span>
+          </span>
+        </div>
+
+        <p class="price-tease">
+          <strong>$0.66/day</strong> · then jumps to <strong style="color:#ffd76b">$50/mo</strong> · cancel anytime
+        </p>
+
+        <!-- Tiny testimonial -->
+        <div class="testi">
+          <div class="testi-quote">"It cancelled my Comcast and saved me $312/yr while I was sleeping. Best $20 I spend."</div>
+          <div class="testi-name">— Marcus R., founder · Brooklyn</div>
+        </div>
+
+        <!-- Progressive reveal flow after submit -->
+        <div class="reveal-flow" id="revealFlow">
+
+          <!-- STEP 1: Generating phone + email -->
+          <div class="reveal-step" id="step-gen">
+            <div class="step-header">
+              <div class="pulse-mini"></div>
+              <span>Generating</span>
+            </div>
+            <div id="genStatus" class="gen-status">Reserving your phone number<span class="dots">...</span></div>
+            <div class="reveal-rows" id="revealRows"></div>
+            <button class="cta cta-step" id="step-gen-next" style="display:none">Yes, it can call for me <span class="cta-arrow">→</span></button>
+          </div>
+
+          <!-- STEP 2: Voice + Computer capabilities -->
+          <div class="reveal-step" id="step-caps">
+            <div class="step-header">
+              <div class="pulse-mini"></div>
+              <span>What it does</span>
+            </div>
+            <div class="cap-cards">
+              <div class="cap-card">
+                <div class="cap-ic">📞</div>
+                <div class="cap-name">Voice</div>
+                <div class="cap-line">It picks up calls. Calls people for you. Real voice. Real number.</div>
+              </div>
+              <div class="cap-card">
+                <div class="cap-ic">🌐</div>
+                <div class="cap-name">Computer</div>
+                <div class="cap-line">Books flights. Cancels subs. Fills forms. Browses for you.</div>
+              </div>
+            </div>
+            <button class="cta cta-step" id="step-caps-next">Cool — name mine <span class="cta-arrow">→</span></button>
+          </div>
+
+          <!-- STEP 3: Name capture -->
+          <div class="reveal-step" id="step-name">
+            <div class="step-header">
+              <div class="pulse-mini"></div>
+              <span>One thing</span>
+            </div>
+            <div class="name-prompt">What should it call itself?</div>
+            <div class="name-input-wrap">
+              <input id="nameInput" class="name-input" type="text" maxlength="20"
+                placeholder="Q" autocomplete="off" />
+            </div>
+            <div class="name-suggests">
+              <button class="name-suggest" data-name="Q">Q</button>
+              <button class="name-suggest" data-name="Jarvis">Jarvis</button>
+              <button class="name-suggest" data-name="Mason">Mason</button>
+              <button class="name-suggest" data-name="Ava">Ava</button>
+              <button class="name-suggest" data-name="Riley">Riley</button>
+            </div>
+            <button class="cta cta-step" id="step-name-next">Try it now <span class="cta-arrow">→</span></button>
+          </div>
+
+          <!-- STEP 4: Final CTA → paywall -->
+          <div class="reveal-step" id="step-final">
+            <div class="final-block">
+              <div class="step-header">
+                <div class="pulse-mini"></div>
+                <span>Last step</span>
+              </div>
+              <div class="final-headline"><span id="finalAiName">Q</span> is <span class="grad">ready</span>.</div>
+              <div class="final-sub">Number, inbox, computer — locked in for <strong>$0.66/day</strong>.</div>
+              <a href="/subscribe.html" id="finalCta" class="cta cta-final">Make <span id="finalAiName2">Q</span> real → $0.66/day</a>
+              <div class="final-foot">cancel in 1 tap · 7-day refund · 256-bit encrypted</div>
+            </div>
+          </div>
+
+        </div>
+
+      </main>
+
+      <footer>
+        <a href="/login.html">Sign in</a> · <a href="/subscribe.html">Just sign me up</a> · © 2026 Q
+      </footer>
+
+    </div>
+
+    <div id="recentTicker" class="recent-ticker">
+      <div class="label">JUST CLAIMED</div>
+      <div class="who" id="recentName">—</div>
+      <div class="when" id="recentWhen">—</div>
+    </div>
+
+    <script>
+      const promptInput = document.getElementById("promptInput");
+      const promptBox = document.getElementById("promptBox");
+      const promptSubmit = document.getElementById("promptSubmit");
+      const revealFlow = document.getElementById("revealFlow");
+      let aiName = "Q"; // default
+
+      // ─── Rotating placeholder examples ──────────────────────────
+      const PLACEHOLDERS = [
+        "Call my dentist and reschedule to next Wed",
+        "Reply to my landlord about rent",
+        "Find me a flight to NYC under $300",
+        "Cancel my Comcast — don't pay more than $40",
+        "Set my mom a reminder to take her meds",
+        "DM 10 buyers about my Etsy candles",
+      ];
+      let phI = 0;
+      function rotatePlaceholder() {
+        if (document.activeElement === promptInput || promptInput.value) return;
+        phI = (phI + 1) % PLACEHOLDERS.length;
+        promptInput.placeholder = PLACEHOLDERS[phI];
+      }
+      setInterval(rotatePlaceholder, 2800);
+
+      promptInput.addEventListener("focus", () => promptBox.classList.add("focused"));
+      promptInput.addEventListener("blur", () => promptBox.classList.remove("focused"));
+
+      // ─── Suggestion clicks ──────────────────────────────────────
+      document.querySelectorAll(".suggest").forEach((b) => {
+        b.addEventListener("click", () => {
+          promptInput.value = b.dataset.prompt;
+          promptInput.focus();
+          submit();
+        });
+      });
+
+      // ─── Step navigation ──────────────────────────────────────
+      function showStep(id) {
+        document.querySelectorAll(".reveal-step").forEach((s) => s.classList.remove("show"));
+        document.getElementById(id).classList.add("show");
+        document.getElementById(id).scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+
+      // ─── STEP 1: Generate phone + email ───────────────────────
+      let submitting = false;
+      async function submit() {
+        const prompt = promptInput.value.trim();
+        if (!prompt || submitting) return;
+        submitting = true;
+        promptSubmit.disabled = true;
+        promptInput.disabled = true;
+
+        try { sessionStorage.setItem("Q_prompt", prompt); } catch {}
+
+        revealFlow.classList.add("show");
+        showStep("step-gen");
+
+        const status = document.getElementById("genStatus");
+        const rows = document.getElementById("revealRows");
+
+        // Spinner messaging
+        await new Promise((r) => setTimeout(r, 100));
+        status.innerHTML = `Reserving your phone number<span class="dots">...</span>`;
+        await new Promise((r) => setTimeout(r, 900));
+
+        // Phone reveal
+        rows.innerHTML = `<div class="reveal-row"><span class="ic">📞</span><span>+1 (415) reserved</span></div>`;
+        status.innerHTML = `Generating your AI's inbox<span class="dots">...</span>`;
+        await new Promise((r) => setTimeout(r, 900));
+
+        // Email reveal
+        rows.insertAdjacentHTML("beforeend", `<div class="reveal-row delay-1"><span class="ic">📧</span><span>@aiemployeeplatform.com reserved</span></div>`);
+        status.innerHTML = `<span style="color:var(--accent)">✓</span> Done.`;
+        await new Promise((r) => setTimeout(r, 600));
+
+        document.getElementById("step-gen-next").style.display = "inline-flex";
+      }
+
+      promptSubmit.addEventListener("click", submit);
+      promptInput.addEventListener("keydown", (e) => { if (e.key === "Enter") submit(); });
+
+      // ─── Step transitions ─────────────────────────────────────
+      document.getElementById("step-gen-next").addEventListener("click", () => showStep("step-caps"));
+      document.getElementById("step-caps-next").addEventListener("click", () => showStep("step-name"));
+
+      // ─── Name capture ────────────────────────────────────────
+      const nameInput = document.getElementById("nameInput");
+      function setName(n) {
+        aiName = (n || "Q").trim().slice(0, 20) || "Q";
+        try { sessionStorage.setItem("Q_aiName", aiName); } catch {}
+      }
+      nameInput.addEventListener("input", (e) => setName(e.target.value));
+      document.querySelectorAll(".name-suggest").forEach((b) => {
+        b.addEventListener("click", () => {
+          nameInput.value = b.dataset.name;
+          setName(b.dataset.name);
+          nameInput.focus();
+        });
+      });
+      document.getElementById("step-name-next").addEventListener("click", () => {
+        // If they typed nothing, default to "Q"
+        if (!nameInput.value.trim()) { nameInput.value = "Q"; setName("Q"); }
+        document.getElementById("finalAiName").textContent = aiName;
+        document.getElementById("finalAiName2").textContent = aiName;
+        showStep("step-final");
+      });
+
+      // ─── Recent signup ticker ──────────────────────────────────
+      const TICKER = [
+        { name: "Alex M.", where: "Brooklyn" }, { name: "Sarah K.", where: "Austin" },
+        { name: "Marcus R.", where: "London" }, { name: "Emma T.", where: "Toronto" },
+        { name: "Jordan P.", where: "Berlin" }, { name: "Leo S.", where: "Sydney" },
+        { name: "Yara F.", where: "Amsterdam" }, { name: "Rico B.", where: "Miami" },
+      ];
+      function startTicker() {
+        const el = document.getElementById("recentTicker");
+        const nameEl = document.getElementById("recentName");
+        const whenEl = document.getElementById("recentWhen");
+        const cycle = async () => {
+          await new Promise((r) => setTimeout(r, 8000 + Math.random() * 5000));
+          const t = TICKER[Math.floor(Math.random() * TICKER.length)];
+          const minutes = Math.max(1, Math.floor(Math.random() * 14));
+          nameEl.textContent = `${t.name} · ${t.where}`;
+          whenEl.textContent = `${minutes} min ago`;
+          el.classList.add("show");
+          await new Promise((r) => setTimeout(r, 4500));
+          el.classList.remove("show");
+          cycle();
+        };
+        cycle();
+      }
+      setTimeout(startTicker, 5000);
+
+      // ─── Live countdown to price increase ──────────────────────
+      let priceIncreaseDate = null;
+      function tickCountdown() {
+        if (!priceIncreaseDate) return;
+        const ms = priceIncreaseDate - Date.now();
+        if (ms <= 0) {
+          ["ctd-d","ctd-h","ctd-m","ctd-s"].forEach(id => document.getElementById(id).textContent = "00");
+          return;
+        }
+        const d = Math.floor(ms / 86400000);
+        const h = Math.floor((ms % 86400000) / 3600000);
+        const m = Math.floor((ms % 3600000) / 60000);
+        const s = Math.floor((ms % 60000) / 1000);
+        document.getElementById("ctd-d").textContent = String(d).padStart(2, "0");
+        document.getElementById("ctd-h").textContent = String(h).padStart(2, "0");
+        document.getElementById("ctd-m").textContent = String(m).padStart(2, "0");
+        document.getElementById("ctd-s").textContent = String(s).padStart(2, "0");
+      }
+      setInterval(tickCountdown, 1000);
+
+      // ─── Slot count + price increase date ─────────────────────
+      (async () => {
+        try {
+          const r = await fetch("/api/payments/slots");
+          const j = await r.json();
+          if (j.ok) {
+            document.getElementById("topTaken").textContent = j.taken;
+            if (j.pricing?.priceIncreaseDate) {
+              priceIncreaseDate = Date.parse(j.pricing.priceIncreaseDate);
+              tickCountdown();
+            }
+          }
+        } catch {}
+      })();
+    </script>
+  </body>
+</html>

@@ -3,265 +3,543 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Q</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <title>Q · Your AI</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
     <style>
       :root {
         --bg: #0a0a0b;
-        --bg-2: #111114;
+        --surface: #131316;
         --fg: #f5f5f7;
-        --fg-muted: #a1a1aa;
+        --fg-muted: rgba(255,255,255,0.55);
+        --fg-faint: rgba(255,255,255,0.32);
         --border: rgba(255,255,255,0.08);
         --accent: #00ffd1;
         --accent-2: #7c5cff;
       }
-      * { box-sizing: border-box; margin: 0; padding: 0; }
+      * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
       html, body {
-        min-height: 100%;
-        background: var(--bg);
-        color: var(--fg);
-        font-family: 'Inter', system-ui, sans-serif;
-        -webkit-font-smoothing: antialiased;
+        height: 100%;
+        background: var(--bg); color: var(--fg);
+        font-family: 'Inter', -apple-system, system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+        line-height: 1.5; letter-spacing: -0.005em;
+        overflow: hidden;
       }
-      body {
-        background:
-          radial-gradient(circle at 20% 10%, rgba(124,92,255,0.18) 0%, transparent 40%),
-          radial-gradient(circle at 80% 90%, rgba(0,255,209,0.15) 0%, transparent 40%),
-          var(--bg);
-        min-height: 100vh;
-      }
-      .wrap { max-width: 720px; margin: 0 auto; padding: 40px 24px 80px; }
-      .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 36px; }
-      .brand { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 18px; }
-      .brand-dot { width: 8px; height: 8px; border-radius: 999px; background: var(--accent); box-shadow: 0 0 12px var(--accent); }
-      .signout {
-        background: transparent; border: 1px solid var(--border);
-        color: var(--fg-muted); padding: 6px 14px; border-radius: 999px;
-        font-size: 13px; font-family: inherit; cursor: pointer;
-        transition: all 200ms ease;
-      }
-      .signout:hover { border-color: rgba(255,255,255,0.2); color: var(--fg); }
+      a { color: inherit; text-decoration: none; }
+      button { font-family: inherit; cursor: pointer; }
 
-      .hero {
-        text-align: center; margin-bottom: 40px;
-      }
-      .live-pill {
-        display: inline-flex; align-items: center; gap: 6px;
-        background: rgba(0,255,209,0.1); color: var(--accent);
-        font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 999px;
-        margin-bottom: 14px;
-      }
-      .live-dot { width: 6px; height: 6px; border-radius: 999px; background: var(--accent); animation: pulse 1.5s ease infinite; }
-      @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+      .app { height: 100vh; height: 100dvh; display: grid; grid-template-columns: 280px 1fr; }
+      @media (max-width: 720px) { .app { grid-template-columns: 1fr; } .sidebar { display: none; } }
 
-      h1 {
-        font-size: clamp(34px, 6vw, 56px);
-        font-weight: 800; letter-spacing: -0.02em; line-height: 1.05; margin-bottom: 10px;
+      /* SIDEBAR */
+      .sidebar {
+        background: var(--surface);
+        border-right: 1px solid var(--border);
+        padding: 22px 20px;
+        display: flex; flex-direction: column; gap: 22px;
+        overflow-y: auto;
       }
-      .grad {
-        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
-        -webkit-background-clip: text; background-clip: text; color: transparent;
+      .brand {
+        display: flex; align-items: center; gap: 8px;
+        font-weight: 700; font-size: 19px; letter-spacing: -0.02em;
       }
-      .sub { color: var(--fg-muted); font-size: 16px; }
+      .brand .dot {
+        width: 8px; height: 8px; border-radius: 50%; background: var(--accent);
+        box-shadow: 0 0 10px var(--accent);
+        animation: blink 1.5s ease infinite;
+      }
+      @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
 
-      .card {
-        background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
+      .info-card {
+        background: rgba(255,255,255,0.03);
         border: 1px solid var(--border);
-        border-radius: 24px;
-        padding: 28px;
-        margin-bottom: 20px;
+        border-radius: 14px; padding: 14px 16px;
+      }
+      .info-card .lbl {
+        font-size: 10px; color: var(--fg-faint); font-weight: 700;
+        letter-spacing: 0.14em; text-transform: uppercase; margin-bottom: 6px;
+      }
+      .info-card .val {
+        font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 600;
+        color: var(--fg); word-break: break-all;
+      }
+      .info-card .val.placeholder { color: var(--fg-muted); }
+      .info-card .copy-btn {
+        margin-top: 8px; font-size: 11px; padding: 5px 10px; border-radius: 999px;
+        background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+        color: var(--fg-muted); transition: all 200ms ease;
+      }
+      .info-card .copy-btn:hover { border-color: rgba(0,255,209,0.4); color: var(--accent); }
+
+      .sidebar-section { display: flex; flex-direction: column; gap: 10px; }
+      .sidebar-title {
+        font-size: 11px; color: var(--fg-faint); font-weight: 700;
+        letter-spacing: 0.16em; text-transform: uppercase;
       }
 
-      .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
-      @media (max-width: 540px) { .info-grid { grid-template-columns: 1fr; } }
-      .info { padding: 18px; background: rgba(0,0,0,0.2); border-radius: 14px; border: 1px solid var(--border); }
-      .info-icon { font-size: 20px; margin-bottom: 8px; }
-      .info-label { color: var(--fg-muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
-      .info-value { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 600; word-break: break-all; }
-
-      .actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 8px; }
-      @media (max-width: 540px) { .actions { grid-template-columns: 1fr; } }
-      .action {
-        background: rgba(255,255,255,0.04); border: 1px solid var(--border);
-        color: var(--fg); padding: 18px; border-radius: 16px;
-        text-align: center; cursor: pointer; text-decoration: none;
-        font-size: 15px; font-weight: 600; font-family: inherit;
-        transition: all 200ms ease;
-        display: flex; flex-direction: column; align-items: center; gap: 8px;
+      .quick {
+        background: transparent; border: 1px solid var(--border);
+        border-radius: 10px; padding: 10px 12px; text-align: left;
+        color: var(--fg-muted); font-size: 13px; font-weight: 500;
+        transition: all 180ms ease;
       }
-      .action:hover { border-color: rgba(0,255,209,0.5); background: rgba(0,255,209,0.05); }
-      .action-icon { font-size: 22px; }
-      .action.primary {
+      .quick:hover { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.16); color: var(--fg); }
+
+      .sidebar-foot {
+        margin-top: auto;
+        display: flex; flex-direction: column; gap: 8px;
+        font-size: 12px;
+      }
+      .sidebar-foot a { color: var(--fg-muted); }
+      .sidebar-foot a:hover { color: var(--fg); }
+      .sidebar-foot .signout-btn {
+        background: transparent; color: var(--fg-muted);
+        text-align: left; padding: 0; font-size: 12px; font-weight: 500;
+        border: none;
+      }
+      .sidebar-foot .signout-btn:hover { color: var(--fg); }
+
+      /* TOP BAR (mobile) */
+      .topbar-mobile {
+        display: none; align-items: center; justify-content: space-between;
+        padding: 12px 16px; border-bottom: 1px solid var(--border);
+        background: rgba(0,0,0,0.5); backdrop-filter: blur(20px);
+        flex-shrink: 0;
+      }
+      @media (max-width: 720px) { .topbar-mobile { display: flex; } }
+      .topbar-mobile .menu-btn {
+        background: transparent; border: 1px solid var(--border);
+        color: var(--fg); padding: 6px 12px; border-radius: 999px;
+        font-size: 12px;
+      }
+
+      /* MAIN CHAT AREA */
+      main {
+        display: flex; flex-direction: column; min-height: 0;
+        position: relative;
+      }
+      .scroll {
+        flex: 1; overflow-y: auto;
+        padding: 28px 24px 180px;
+      }
+      .scroll::-webkit-scrollbar { width: 6px; }
+      .scroll::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 3px; }
+
+      .empty-state {
+        max-width: 640px; margin: 0 auto;
+        padding: clamp(40px, 12vh, 100px) 0 32px;
+        text-align: center;
+      }
+      .empty-orb {
+        width: 60px; height: 60px; border-radius: 50%; margin: 0 auto 18px;
         background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
-        color: #0a0a0b; border: none;
-        box-shadow: 0 10px 32px rgba(0,255,209,0.18);
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 800; color: #000; font-size: 26px;
+        box-shadow: 0 0 60px rgba(0,255,209,0.25);
       }
-      .action.primary:hover { transform: translateY(-1px); box-shadow: 0 14px 40px rgba(0,255,209,0.28); }
-
-      .trial-banner {
-        background: rgba(124,92,255,0.08); border: 1px solid rgba(124,92,255,0.25);
-        border-radius: 14px; padding: 12px 16px; margin-bottom: 20px;
-        font-size: 13px; color: var(--fg-muted); text-align: center;
+      .empty-title {
+        font-size: clamp(28px, 4vw, 38px); font-weight: 700;
+        letter-spacing: -0.02em; line-height: 1.15; margin-bottom: 10px;
       }
-      .trial-banner b { color: var(--fg); }
+      .empty-sub {
+        color: var(--fg-muted); font-size: 16px; max-width: 480px;
+        margin: 0 auto 24px;
+      }
+      .empty-quick { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 540px; margin: 0 auto; }
+      .empty-quick .q {
+        background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+        color: var(--fg); font-size: 13px; font-weight: 500;
+        padding: 8px 14px; border-radius: 999px;
+        transition: all 180ms ease;
+      }
+      .empty-quick .q:hover { background: rgba(0,255,209,0.05); border-color: rgba(0,255,209,0.4); color: var(--accent); }
 
-      .loading { text-align: center; padding: 80px 0; color: var(--fg-muted); }
-      .spinner {
-        width: 40px; height: 40px;
+      /* Chat thread */
+      .thread { max-width: 720px; margin: 0 auto; display: flex; flex-direction: column; gap: 18px; }
+      .row { display: flex; gap: 12px; align-items: flex-start; }
+      .row.me { justify-content: flex-end; }
+      .avatar {
+        width: 28px; height: 28px; border-radius: 50%; flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 13px; font-weight: 700;
+      }
+      .avatar.q {
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+        color: #000;
+      }
+      .bubble {
+        max-width: 84%; line-height: 1.55; font-size: 15px;
+        opacity: 0; transform: translateY(6px);
+        animation: msgIn 280ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      }
+      @keyframes msgIn { to { opacity: 1; transform: translateY(0); } }
+      .row.q .bubble { color: var(--fg); white-space: pre-wrap; }
+      .row.me .bubble {
+        background: rgba(255,255,255,0.06); color: var(--fg);
+        padding: 10px 16px; border-radius: 16px; border-bottom-right-radius: 4px;
+      }
+      .typing { display: inline-flex; gap: 4px; padding: 6px 0; }
+      .typing .d {
+        width: 6px; height: 6px; border-radius: 50%;
+        background: rgba(255,255,255,0.4);
+        animation: td 1.4s ease-in-out infinite;
+      }
+      .typing .d:nth-child(2) { animation-delay: 0.2s; }
+      .typing .d:nth-child(3) { animation-delay: 0.4s; }
+      @keyframes td { 0%,60%,100% { opacity: 0.3; transform: translateY(0); } 30% { opacity: 1; transform: translateY(-2px); } }
+
+      /* Composer */
+      .composer {
+        position: absolute; bottom: 0; left: 0; right: 0;
+        padding: 16px 24px 22px;
+        background: linear-gradient(180deg, transparent 0%, var(--bg) 30%);
+        pointer-events: none;
+      }
+      .composer-inner {
+        max-width: 720px; margin: 0 auto;
+        pointer-events: auto;
+      }
+      .composer-box {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        display: flex; align-items: center; gap: 8px;
+        padding: 4px 4px 4px 18px;
+        transition: border-color 200ms ease, box-shadow 200ms ease;
+      }
+      .composer-box:focus-within {
+        border-color: rgba(0,255,209,0.35);
+        box-shadow: 0 0 0 3px rgba(0,255,209,0.08);
+      }
+      .composer-input {
+        flex: 1;
+        background: transparent; border: none; outline: none;
+        color: var(--fg); font-family: inherit;
+        font-size: 16px; padding: 14px 0;
+      }
+      .composer-input::placeholder { color: var(--fg-faint); }
+      .composer-send {
+        width: 36px; height: 36px; border-radius: 12px;
+        background: var(--accent); color: #000;
+        border: none; font-size: 17px; font-weight: 800; flex-shrink: 0;
+        display: flex; align-items: center; justify-content: center;
+        transition: transform 150ms ease, opacity 200ms ease;
+      }
+      .composer-send:hover { transform: scale(1.05); }
+      .composer-send:disabled { opacity: 0.3; cursor: not-allowed; }
+
+      .composer-foot {
+        text-align: center; font-size: 11px; color: var(--fg-faint);
+        margin-top: 8px;
+      }
+
+      /* Banner — for prompts like "save your number" */
+      .banner {
+        background: linear-gradient(135deg, rgba(0,255,209,0.08), rgba(124,92,255,0.06));
+        border: 1px solid rgba(0,255,209,0.25);
+        border-radius: 14px; padding: 12px 16px;
+        margin-bottom: 14px;
+        font-size: 13.5px; color: var(--fg);
+        display: flex; align-items: center; gap: 10px;
+      }
+      .banner .ic { font-size: 16px; flex-shrink: 0; }
+      .banner-close {
+        background: transparent; border: none; color: var(--fg-muted);
+        margin-left: auto; font-size: 16px; padding: 0 6px;
+      }
+      .banner-close:hover { color: var(--fg); }
+
+      /* Provisioning state */
+      .provisioning {
+        max-width: 480px; margin: 60px auto;
+        padding: 40px 28px; text-align: center;
+        background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+        border-radius: 24px;
+      }
+      .provisioning h2 { font-size: 22px; font-weight: 700; margin-bottom: 12px; }
+      .provisioning p { color: var(--fg-muted); font-size: 14px; line-height: 1.6; }
+      .provisioning .spin {
+        width: 40px; height: 40px; border-radius: 50%; margin: 0 auto 18px;
         border: 3px solid rgba(255,255,255,0.08);
         border-top-color: var(--accent);
-        border-radius: 50%;
         animation: spin 700ms linear infinite;
-        margin: 0 auto 16px;
       }
       @keyframes spin { to { transform: rotate(360deg); } }
-
-      .provisioning-note {
-        font-size: 12px; color: var(--fg-muted); margin-top: 10px; text-align: center;
-      }
     </style>
   </head>
   <body>
-    <div class="wrap">
-      <div class="top">
-        <div class="brand"><span class="brand-dot"></span> Q</div>
-        <button class="signout" id="signout">Sign out</button>
-      </div>
+    <div class="app">
 
-      <div id="loading" class="loading">
-        <div class="spinner"></div>
-        Loading your AI...
-      </div>
-
-      <div id="content" style="display:none">
-        <div class="hero">
-          <div class="live-pill"><span class="live-dot"></span> Live</div>
-          <h1><span id="aiName" class="grad">Your AI</span> is awake.</h1>
-          <p class="sub">Just message it. Call it. Email it. It's already on.</p>
+      <!-- Sidebar with phone + email + quick actions -->
+      <aside class="sidebar">
+        <div class="brand">
+          <div class="dot"></div>
+          <span id="aiNameTitle">Q</span>
         </div>
 
-        <div id="trialBanner" class="trial-banner" style="display:none">
-          <b>Trial active</b> · You have <span id="trialDays">7</span> days free, then $20/mo.
+        <div class="sidebar-section">
+          <div class="sidebar-title">Your AI's contact</div>
+
+          <div class="info-card">
+            <div class="lbl">📞 Phone</div>
+            <div class="val placeholder" id="phoneVal">— provisioning</div>
+            <button class="copy-btn" data-copy="phone">Copy</button>
+          </div>
+
+          <div class="info-card">
+            <div class="lbl">📧 Email</div>
+            <div class="val placeholder" id="emailVal">— provisioning</div>
+            <button class="copy-btn" data-copy="email">Copy</button>
+          </div>
         </div>
 
-        <div class="card">
-          <div class="info-grid">
-            <div class="info">
-              <div class="info-icon">📞</div>
-              <div class="info-label">Phone</div>
-              <div class="info-value" id="phone">—</div>
+        <div class="sidebar-section">
+          <div class="sidebar-title">Try saying</div>
+          <button class="quick" data-q="Call my dentist and reschedule to next Wednesday at 4pm">📞 Call my dentist</button>
+          <button class="quick" data-q="Reply to my landlord — ask for a one-week extension">📧 Reply to landlord</button>
+          <button class="quick" data-q="Find me a flight to NYC under $300 next weekend">🌐 Find a flight</button>
+          <button class="quick" data-q="Cancel my Comcast — don't pay over $40/mo">📞 Cancel Comcast</button>
+          <button class="quick" data-q="Make me a CSV of my last 10 expenses">📄 Generate CSV</button>
+        </div>
+
+        <div class="sidebar-foot">
+          <a href="#" id="manageLink">Manage subscription</a>
+          <a href="/privacy.html">Privacy</a>
+          <a href="/terms.html">Terms</a>
+          <button class="signout-btn" id="signout">Sign out</button>
+        </div>
+      </aside>
+
+      <main>
+        <div class="topbar-mobile">
+          <div class="brand"><div class="dot"></div><span id="aiNameMobile">Q</span></div>
+          <button class="menu-btn" id="mobileInfo">Phone + Email</button>
+        </div>
+
+        <div class="scroll" id="scroll">
+          <div id="provisioningView" class="provisioning" style="display:none">
+            <div class="spin"></div>
+            <h2>Spinning up your AI...</h2>
+            <p>Buying your phone number, generating your inbox. Should be ~30s. We'll text you the moment it's ready.</p>
+          </div>
+
+          <div id="emptyState" class="empty-state" style="display:none">
+            <div class="empty-orb">Q</div>
+            <h2 class="empty-title">Hi. I'm <span id="aiName">Q</span>.</h2>
+            <p class="empty-sub">Ask me to do anything. I'll call, email, browse the web, generate files — in the background, while you do other things.</p>
+            <div id="phoneTip" class="banner" style="display:none;max-width:540px;margin:0 auto 18px;">
+              <span class="ic">📲</span>
+              <span>You can also text me from your phone — <strong id="phoneTipNumber">+1 (—)</strong>. I'll reply.</span>
+              <button class="banner-close" data-close="phoneTip">×</button>
             </div>
-            <div class="info">
-              <div class="info-icon">📧</div>
-              <div class="info-label">Email</div>
-              <div class="info-value" id="email">—</div>
+            <div class="empty-quick">
+              <button class="q" data-q="Call my dentist and reschedule to next Wednesday at 4pm">📞 Call my dentist</button>
+              <button class="q" data-q="Reply to my landlord — ask for a one-week extension">📧 Reply to landlord</button>
+              <button class="q" data-q="Find me a flight to NYC under $300 next weekend">🌐 Find a flight</button>
+              <button class="q" data-q="Cancel my Comcast — don't pay over $40/mo">📞 Cancel Comcast</button>
             </div>
           </div>
-          <p class="provisioning-note" id="provisioningNote" style="display:none">
-            ⚙️ Still finalizing your number — refresh in a moment.
-          </p>
+
+          <div class="thread" id="thread"></div>
         </div>
 
-        <div class="actions">
-          <a class="action primary" href="/chat.html">
-            <span class="action-icon">💬</span>
-            Chat
-          </a>
-          <a class="action" id="callBtn" href="#">
-            <span class="action-icon">📞</span>
-            Call your AI
-          </a>
-          <a class="action" href="/setup">
-            <span class="action-icon">⚙️</span>
-            Settings
-          </a>
+        <div class="composer">
+          <div class="composer-inner">
+            <div class="composer-box">
+              <input id="input" class="composer-input" type="text" autocomplete="off"
+                placeholder="Ask Q anything..." />
+              <button id="send" class="composer-send" aria-label="Send">↑</button>
+            </div>
+            <div class="composer-foot" id="footHint">$0.66/day · cancel anytime</div>
+          </div>
         </div>
+      </main>
 
-        <div style="text-align:center;margin-top:32px">
-          <button id="manageBtn" class="signout">Manage billing · cancel</button>
-        </div>
-      </div>
-
-      <!-- Rate-limit modal -->
-      <div id="rateLimitModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);z-index:50;align-items:center;justify-content:center;padding:24px">
-        <div class="card" style="max-width:420px;width:100%;text-align:center;margin-bottom:0">
-          <div style="font-size:42px;margin-bottom:8px">⏳</div>
-          <h2 style="font-size:24px;font-weight:700;margin-bottom:8px">Daily limit reached</h2>
-          <p style="color:var(--fg-muted);font-size:14px;margin-bottom:20px">You've used all your messages for today. Resets at midnight UTC.</p>
-          <button class="action primary" onclick="document.getElementById('rateLimitModal').style.display='none'" style="padding:14px 24px;width:auto;display:inline-flex">Got it</button>
-        </div>
-      </div>
     </div>
 
     <script>
-      async function load() {
-        const res = await fetch("/api/profile/me");
-        if (res.status === 401) { location.href = "/login.html"; return; }
-        if (res.status === 402) { location.href = "/subscribe.html"; return; }
-        const data = await res.json();
-        if (!data.ok) return;
+      const scroll = document.getElementById("scroll");
+      const thread = document.getElementById("thread");
+      const emptyState = document.getElementById("emptyState");
+      const provisioningView = document.getElementById("provisioningView");
+      const input = document.getElementById("input");
+      const send = document.getElementById("send");
 
-        document.getElementById("loading").style.display = "none";
-        document.getElementById("content").style.display = "block";
+      const phoneVal = document.getElementById("phoneVal");
+      const emailVal = document.getElementById("emailVal");
+      const aiName = document.getElementById("aiName");
+      const aiNameTitle = document.getElementById("aiNameTitle");
+      const aiNameMobile = document.getElementById("aiNameMobile");
+      const phoneTip = document.getElementById("phoneTip");
+      const phoneTipNumber = document.getElementById("phoneTipNumber");
+      const footHint = document.getElementById("footHint");
 
-        const p = data.profile || {};
-        const sub = data.subscription || {};
+      let started = false;
 
-        document.getElementById("aiName").textContent = p.ai_name || "Your AI";
-
-        const phone = p.real_number || p.reserved_number || "—";
-        document.getElementById("phone").textContent = phone;
-        document.getElementById("email").textContent = p.reserved_email || "—";
-
-        // Make phone clickable as tel: if it's a real-looking number
-        const callBtn = document.getElementById("callBtn");
-        if (phone && phone.includes("(")) {
-          callBtn.href = "tel:" + phone.replace(/\D/g, "");
-        }
-
-        // Show "still finalizing" if not yet provisioned
-        if (!p.provisioned_at && !p.real_number) {
-          document.getElementById("provisioningNote").style.display = "block";
-        }
-
-        if (sub.status === "trialing" && sub.current_period_end) {
-          const daysLeft = Math.max(0, Math.ceil(
-            (new Date(sub.current_period_end) - Date.now()) / 86400000,
-          ));
-          document.getElementById("trialDays").textContent = daysLeft;
-          document.getElementById("trialBanner").style.display = "block";
-        }
+      function scrollToEnd() {
+        requestAnimationFrame(() => scroll.scrollTo({ top: scroll.scrollHeight, behavior: "smooth" }));
       }
+
+      function escape(s) {
+        return String(s).replace(/[&<>"']/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c]);
+      }
+
+      function addUserMsg(text) {
+        if (!started) { started = true; emptyState.style.display = "none"; }
+        const row = document.createElement("div");
+        row.className = "row me";
+        row.innerHTML = `<div class="bubble">${escape(text)}</div>`;
+        thread.appendChild(row);
+        scrollToEnd();
+      }
+
+      function addQTyping() {
+        const row = document.createElement("div");
+        row.className = "row q";
+        row.innerHTML = `<div class="avatar q">Q</div><div class="bubble"><div class="typing"><div class="d"></div><div class="d"></div><div class="d"></div></div></div>`;
+        thread.appendChild(row);
+        scrollToEnd();
+        return row;
+      }
+
+      function addQMsg(text) {
+        const row = document.createElement("div");
+        row.className = "row q";
+        row.innerHTML = `<div class="avatar q">Q</div><div class="bubble">${escape(text)}</div>`;
+        thread.appendChild(row);
+        scrollToEnd();
+        return row;
+      }
+
+      async function send_msg(text) {
+        if (!text || !text.trim()) return;
+        addUserMsg(text);
+        input.value = "";
+        send.disabled = true;
+
+        const typingRow = addQTyping();
+        try {
+          const r = await fetch("/api/chat/send", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ message: text, sessionKey: window.userId || "default" }),
+          });
+          const j = await r.json();
+          typingRow.remove();
+          if (j.ok) {
+            addQMsg(j.reply || "(no reply)");
+          } else {
+            addQMsg(j.error || "Something went wrong. Try again.");
+          }
+        } catch (err) {
+          typingRow.remove();
+          addQMsg("Network error. Try again.");
+        }
+        send.disabled = false;
+        input.focus();
+      }
+
+      send.addEventListener("click", () => send_msg(input.value));
+      input.addEventListener("keydown", (e) => { if (e.key === "Enter") send_msg(input.value); });
+
+      document.querySelectorAll(".quick, .q").forEach((b) => {
+        b.addEventListener("click", () => send_msg(b.dataset.q));
+      });
+
+      document.querySelectorAll(".copy-btn").forEach((b) => {
+        b.addEventListener("click", async () => {
+          const which = b.dataset.copy;
+          const text = which === "phone" ? phoneVal.textContent : emailVal.textContent;
+          if (text && !text.startsWith("—")) {
+            try { await navigator.clipboard.writeText(text); b.textContent = "Copied ✓"; setTimeout(() => b.textContent = "Copy", 1500); } catch {}
+          }
+        });
+      });
+
+      document.querySelectorAll(".banner-close").forEach((b) => {
+        b.addEventListener("click", () => document.getElementById(b.dataset.close).style.display = "none");
+      });
 
       document.getElementById("signout").addEventListener("click", async () => {
         await fetch("/api/auth/logout", { method: "POST" });
         location.href = "/login.html";
       });
 
-      document.getElementById("manageBtn").addEventListener("click", async () => {
-        const btn = document.getElementById("manageBtn");
-        btn.textContent = "Opening...";
-        const res = await fetch("/api/payments/portal", { method: "POST" });
-        const data = await res.json();
-        if (data.ok && data.url) {
-          location.href = data.url;
-        } else {
-          btn.textContent = data.error || "Manage billing · cancel";
-          setTimeout(() => { btn.textContent = "Manage billing · cancel"; }, 2500);
-        }
+      document.getElementById("manageLink").addEventListener("click", async (e) => {
+        e.preventDefault();
+        try {
+          const r = await fetch("/api/payments/portal", { method: "POST" });
+          const j = await r.json();
+          if (j.ok && j.url) window.open(j.url, "_blank");
+        } catch {}
       });
 
-      // Global 429 catcher → show rate-limit modal
-      const _fetch = window.fetch;
-      window.fetch = async (...args) => {
-        const res = await _fetch(...args);
-        if (res.status === 429) {
-          document.getElementById("rateLimitModal").style.display = "flex";
-        }
-        return res;
-      };
+      // ─── Load profile + subscription state ──────────────────────
+      (async () => {
+        try {
+          const profileR = await fetch("/api/profile/me").then(r => r.json());
+          const profile = profileR?.profile || {};
+          const sub = profileR?.subscription;
 
-      load();
+          // No subscription? Bounce to /subscribe.html
+          if (!sub || !["active", "trialing"].includes(sub.status)) {
+            location.href = "/subscribe.html";
+            return;
+          }
+
+          // Set AI name everywhere
+          const name = profile.ai_name || "Q";
+          aiName.textContent = name;
+          aiNameTitle.textContent = name;
+          aiNameMobile.textContent = name;
+          document.title = `${name} · Your AI`;
+
+          // Phone
+          if (profile.real_number) {
+            phoneVal.textContent = profile.real_number;
+            phoneVal.classList.remove("placeholder");
+            phoneTipNumber.textContent = profile.real_number;
+            phoneTip.style.display = "flex";
+          }
+
+          // Email
+          if (profile.reserved_email) {
+            emailVal.textContent = profile.reserved_email;
+            emailVal.classList.remove("placeholder");
+          }
+
+          // Provisioning state
+          if (!profile.provisioned_at) {
+            provisioningView.style.display = "block";
+            emptyState.style.display = "none";
+            // Poll every 3s
+            const poll = setInterval(async () => {
+              try {
+                const r = await fetch("/api/profile/me").then(r => r.json());
+                const p = r?.profile;
+                if (p?.provisioned_at) {
+                  clearInterval(poll);
+                  location.reload();
+                }
+              } catch {}
+            }, 3000);
+          } else {
+            emptyState.style.display = "block";
+          }
+
+          window.userId = profileR?.user?.id || "default";
+        } catch (e) {
+          console.error("Profile load failed", e);
+          emptyState.style.display = "block";
+        }
+      })();
+
+      // Mobile info button
+      document.getElementById("mobileInfo")?.addEventListener("click", () => {
+        const phone = phoneVal.textContent;
+        const email = emailVal.textContent;
+        alert(`📞 ${phone}\n📧 ${email}`);
+      });
     </script>
   </body>
 </html>

@@ -70,8 +70,19 @@
           body: JSON.stringify({ access_token: token }),
         });
         const data = await res.json();
-        if (data.ok) { location.href = "/setup"; return; }
-        showError(data.error || "Auth failed");
+        if (!data.ok) return showError(data.error || "Auth failed");
+        // Check subscription status — paid users go to dashboard, others to subscribe.
+        try {
+          const s = await fetch("/api/payments/status").then((r) => r.json());
+          const status = s?.subscription?.status;
+          if (status === "active" || status === "trialing") {
+            location.href = "/dashboard.html";
+          } else {
+            location.href = "/subscribe.html";
+          }
+        } catch {
+          location.href = "/subscribe.html";
+        }
       }
 
       function showError(msg) {

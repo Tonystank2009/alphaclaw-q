@@ -1,0 +1,651 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>Q · Text your AI · $0.66/day</title>
+    <meta name="description" content="Your own AI you can text from your real phone. Like iMessage, but it actually does things." />
+    <meta name="theme-color" content="#000000" />
+    <meta property="og:title" content="Q · Text your AI" />
+    <meta property="og:description" content="Get a real US phone number for your AI. Text it like a friend. It calls, emails, books — for you." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg: #000;
+        --fg: #fff;
+        --fg-muted: rgba(255,255,255,0.55);
+        --fg-faint: rgba(255,255,255,0.32);
+        --border: rgba(255,255,255,0.10);
+        --accent: #00ffd1;
+        --accent-2: #7c5cff;
+        --imsg-blue: #007aff;
+        --imsg-gray: #2c2c2e;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+      html, body {
+        background: var(--bg); color: var(--fg);
+        font-family: 'Inter', -apple-system, system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;
+        line-height: 1.4; letter-spacing: -0.01em;
+        overflow-x: hidden;
+      }
+      a { color: inherit; text-decoration: none; }
+      button { font-family: inherit; cursor: pointer; }
+
+      body::before {
+        content: ""; position: fixed; inset: 0; z-index: -1;
+        background:
+          radial-gradient(circle at 18% 0%, rgba(124,92,255,0.18) 0%, transparent 45%),
+          radial-gradient(circle at 82% 100%, rgba(0,255,209,0.16) 0%, transparent 45%);
+        pointer-events: none;
+      }
+
+      /* Top bar */
+      nav {
+        position: sticky; top: 0; z-index: 50;
+        display: flex; align-items: center; justify-content: space-between;
+        padding: 14px 20px;
+        background: rgba(0,0,0,0.6); backdrop-filter: blur(24px);
+        border-bottom: 1px solid var(--border);
+      }
+      nav .logo { font-weight: 700; font-size: 22px; letter-spacing: -0.02em; }
+      nav .logo .grad {
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+        -webkit-background-clip: text; background-clip: text; color: transparent;
+      }
+      .pill-slot {
+        display: inline-flex; align-items: center; gap: 6px;
+        background: rgba(0,0,0,0.4); border: 1px solid var(--border);
+        padding: 6px 12px; border-radius: 999px; font-size: 11px; font-weight: 600;
+      }
+      .pill-slot .pulse {
+        width: 7px; height: 7px; border-radius: 50%; background: var(--accent);
+        box-shadow: 0 0 10px var(--accent);
+        animation: pulse 1.6s ease-in-out infinite;
+      }
+      @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+      .pill-slot .num { color: var(--accent); font-family: 'JetBrains Mono', monospace; }
+      .pill-slot .lbl { color: var(--fg-muted); font-weight: 500; }
+      @media (max-width: 380px) { .pill-slot .lbl { display: none; } }
+
+      /* Layout */
+      .wrap {
+        max-width: 1100px; margin: 0 auto; padding: 24px 20px 120px;
+        display: grid; grid-template-columns: 1fr 1fr; gap: 56px;
+        align-items: center;
+      }
+      @media (max-width: 880px) {
+        .wrap { grid-template-columns: 1fr; gap: 32px; padding: 20px 18px 140px; }
+      }
+
+      /* HERO TEXT */
+      .hero {
+        display: flex; flex-direction: column; gap: 22px;
+      }
+      h1 {
+        font-size: clamp(40px, 7vw, 72px);
+        font-weight: 800; letter-spacing: -0.045em; line-height: 0.95;
+      }
+      h1 .grad {
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+        -webkit-background-clip: text; background-clip: text; color: transparent;
+      }
+      .lead {
+        color: var(--fg-muted); font-size: clamp(17px, 1.7vw, 20px);
+        line-height: 1.5; max-width: 480px;
+      }
+      .feats { display: flex; flex-wrap: wrap; gap: 8px; }
+      .feat {
+        display: inline-flex; align-items: center; gap: 6px;
+        background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+        padding: 6px 12px; border-radius: 999px; font-size: 12px; font-weight: 500;
+      }
+
+      /* PHONE MOCKUP */
+      .phone-wrap { display: flex; justify-content: center; }
+      .phone {
+        width: 320px; height: 640px;
+        background: #000;
+        border-radius: 48px;
+        border: 10px solid #1a1a1c;
+        box-shadow:
+          0 0 0 1px rgba(255,255,255,0.08),
+          0 30px 80px rgba(0,0,0,0.6),
+          0 0 60px rgba(0,255,209,0.15);
+        position: relative;
+        overflow: hidden;
+        display: flex; flex-direction: column;
+      }
+      @media (max-width: 880px) {
+        .phone { width: 290px; height: 580px; }
+      }
+
+      /* iPhone notch */
+      .notch {
+        position: absolute; top: 12px; left: 50%; transform: translateX(-50%);
+        width: 110px; height: 28px;
+        background: #000; border-radius: 999px;
+        z-index: 10;
+      }
+
+      /* Status bar */
+      .status-bar {
+        height: 50px; flex-shrink: 0;
+        display: flex; align-items: flex-end; justify-content: space-between;
+        padding: 0 22px 8px;
+        font-family: -apple-system, sans-serif;
+        font-size: 13px; font-weight: 600; color: #fff;
+      }
+      .status-bar .right { display: flex; gap: 5px; align-items: center; }
+
+      /* iMessage header */
+      .im-head {
+        flex-shrink: 0;
+        background: rgba(28,28,30,0.95); backdrop-filter: blur(20px);
+        padding: 8px 16px 12px;
+        border-bottom: 1px solid rgba(255,255,255,0.06);
+        display: flex; flex-direction: column; align-items: center; gap: 4px;
+      }
+      .im-head .av {
+        width: 38px; height: 38px; border-radius: 50%;
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 800; color: #000; font-size: 16px;
+        position: relative;
+      }
+      .im-head .av::after {
+        content: ""; position: absolute; bottom: -1px; right: -1px;
+        width: 12px; height: 12px; border-radius: 50%;
+        background: #00ffd1; border: 2px solid #1c1c1e;
+      }
+      .im-head .name {
+        font-size: 12px; font-weight: 600; color: #fff;
+        display: flex; align-items: center; gap: 4px;
+      }
+      .im-head .name .check {
+        width: 14px; height: 14px; background: #007aff; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        color: #fff; font-size: 9px; font-weight: 700;
+      }
+      .im-head .sub { font-size: 10px; color: rgba(255,255,255,0.5); }
+
+      /* Thread */
+      .thread {
+        flex: 1; overflow-y: auto;
+        padding: 14px 12px 8px;
+        display: flex; flex-direction: column; gap: 4px;
+      }
+      .thread::-webkit-scrollbar { width: 0; }
+
+      .msg-row { display: flex; }
+      .msg-row.them { justify-content: flex-start; }
+      .msg-row.me { justify-content: flex-end; }
+      .msg {
+        max-width: 76%; padding: 8px 13px; border-radius: 18px;
+        font-size: 14.5px; line-height: 1.35; word-wrap: break-word;
+        opacity: 0; transform: translateY(8px);
+        animation: msgIn 350ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+      }
+      @keyframes msgIn { to { opacity: 1; transform: translateY(0); } }
+      .msg-row.them .msg {
+        background: var(--imsg-gray); color: #fff;
+        border-bottom-left-radius: 5px;
+      }
+      .msg-row.me .msg {
+        background: var(--imsg-blue); color: #fff;
+        border-bottom-right-radius: 5px;
+      }
+
+      /* Typing indicator */
+      .typing {
+        display: inline-flex; gap: 4px; align-items: center;
+        background: var(--imsg-gray); padding: 11px 14px; border-radius: 18px;
+        border-bottom-left-radius: 5px;
+      }
+      .typing .dot {
+        width: 7px; height: 7px; border-radius: 50%;
+        background: rgba(255,255,255,0.5);
+        animation: typingDot 1.4s ease-in-out infinite;
+      }
+      .typing .dot:nth-child(2) { animation-delay: 0.2s; }
+      .typing .dot:nth-child(3) { animation-delay: 0.4s; }
+      @keyframes typingDot { 0%, 60%, 100% { opacity: 0.3; transform: translateY(0); } 30% { opacity: 1; transform: translateY(-3px); } }
+
+      /* Compose bar (visual only) */
+      .compose {
+        flex-shrink: 0;
+        padding: 8px 12px 14px;
+        border-top: 1px solid rgba(255,255,255,0.06);
+        display: flex; gap: 8px; align-items: center;
+      }
+      .compose-input {
+        flex: 1; height: 36px;
+        background: rgba(255,255,255,0.06);
+        border: 1px solid rgba(255,255,255,0.12);
+        border-radius: 999px;
+        padding: 0 14px;
+        color: rgba(255,255,255,0.4); font-size: 14px;
+        display: flex; align-items: center;
+      }
+      .compose-arrow {
+        width: 30px; height: 30px; border-radius: 50%;
+        background: var(--imsg-blue);
+        display: flex; align-items: center; justify-content: center;
+        color: #fff; font-weight: 700;
+      }
+      .compose-arrow.dim { background: rgba(255,255,255,0.12); }
+
+      /* Suggestion bubbles below phone */
+      .suggests {
+        margin-top: 18px;
+        display: flex; flex-direction: column; gap: 8px;
+        max-width: 360px; width: 100%;
+        align-items: center;
+      }
+      .suggest-label {
+        font-size: 11px; font-weight: 600; letter-spacing: 0.14em;
+        color: var(--fg-faint); text-transform: uppercase;
+      }
+      .suggest-row {
+        display: flex; flex-wrap: wrap; gap: 6px; justify-content: center;
+      }
+      .suggest {
+        background: rgba(255,255,255,0.06); border: 1px solid var(--border);
+        color: var(--fg); font-size: 13px; font-weight: 500;
+        padding: 8px 14px; border-radius: 999px;
+        transition: all 200ms ease;
+      }
+      .suggest:hover { background: rgba(0,255,209,0.08); border-color: rgba(0,255,209,0.4); color: var(--accent); }
+      .suggest:disabled { opacity: 0.4; cursor: not-allowed; }
+
+      /* Sticky CTA bar (bottom) */
+      .sticky-cta {
+        position: fixed; bottom: 0; left: 0; right: 0; z-index: 60;
+        background: rgba(0,0,0,0.92); backdrop-filter: blur(28px);
+        border-top: 1px solid var(--border);
+        padding: 12px 20px;
+        transform: translateY(110%);
+        transition: transform 500ms cubic-bezier(0.22, 1, 0.36, 1);
+      }
+      .sticky-cta.show { transform: translateY(0); }
+      .sticky-row {
+        max-width: 720px; margin: 0 auto;
+        display: flex; align-items: center; justify-content: space-between; gap: 12px;
+      }
+      .sticky-left { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+      .sticky-price {
+        font-family: 'JetBrains Mono', monospace; font-weight: 700; font-size: 18px;
+      }
+      .sticky-price .grad {
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+        -webkit-background-clip: text; background-clip: text; color: transparent;
+      }
+      .sticky-line { font-size: 11px; color: var(--fg-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .sticky-line .warn { color: #ffd76b; font-weight: 600; }
+      .sticky-cta-btn {
+        background: linear-gradient(135deg, var(--accent) 0%, #14e8c1 100%);
+        color: #000; font-weight: 800; font-size: 15px;
+        padding: 12px 22px; border-radius: 999px; border: none;
+        flex-shrink: 0;
+        transition: transform 180ms ease, box-shadow 220ms ease;
+        box-shadow: 0 8px 24px rgba(0,255,209,0.3);
+      }
+      .sticky-cta-btn:hover { transform: translateY(-1px); box-shadow: 0 12px 32px rgba(0,255,209,0.4); }
+      @media (max-width: 480px) {
+        .sticky-cta-btn { padding: 11px 18px; font-size: 14px; }
+        .sticky-price { font-size: 16px; }
+      }
+
+      /* Recent ticker */
+      .recent-ticker {
+        position: fixed; bottom: 96px; left: 14px; z-index: 55;
+        background: rgba(0,0,0,0.85); backdrop-filter: blur(20px);
+        border: 1px solid var(--border);
+        border-radius: 12px; padding: 9px 13px;
+        max-width: 240px;
+        opacity: 0; transform: translateY(20px);
+        transition: opacity 400ms ease, transform 400ms ease;
+        pointer-events: none;
+      }
+      .recent-ticker.show { opacity: 1; transform: translateY(0); }
+      .recent-ticker .label { font-size: 9px; letter-spacing: 0.14em; color: var(--accent); font-weight: 700; }
+      .recent-ticker .who { font-size: 12px; font-weight: 600; margin-top: 3px; }
+      .recent-ticker .when { font-size: 10px; color: var(--fg-muted); margin-top: 1px; }
+
+      /* Final CTA panel — slides in inside phone after convo */
+      .convo-cta {
+        flex-shrink: 0;
+        margin: 8px 12px 4px;
+        background: rgba(0,255,209,0.08); border: 1px solid rgba(0,255,209,0.3);
+        border-radius: 14px; padding: 12px 14px;
+        text-align: center;
+        opacity: 0; transform: translateY(8px);
+        transition: opacity 400ms ease, transform 400ms ease;
+        pointer-events: none;
+      }
+      .convo-cta.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+      .convo-cta-text { font-size: 13px; font-weight: 600; color: var(--fg); margin-bottom: 8px; }
+      .convo-cta-btn {
+        display: inline-block;
+        background: var(--accent); color: #000;
+        font-weight: 700; font-size: 13px;
+        padding: 10px 18px; border-radius: 999px; border: none;
+      }
+    </style>
+  </head>
+  <body>
+    <nav>
+      <div class="logo">Q<span class="grad">.</span></div>
+      <div class="pill-slot">
+        <div class="pulse"></div>
+        <span class="num" id="topTaken">—</span>
+        <span class="num">/1000</span>
+        <span class="lbl">spots taken</span>
+      </div>
+    </nav>
+
+    <main class="wrap">
+      <section class="hero">
+        <h1>Your AI.<br/><span class="grad">Texts back</span>.</h1>
+        <p class="lead">A real US phone number. iMessages. Calls. It actually <em>does</em> things — books restaurants, replies to email, cancels Comcast. While you scroll.</p>
+        <div class="feats">
+          <span class="feat">📱 Real iMessage</span>
+          <span class="feat">📞 Picks up calls</span>
+          <span class="feat">📧 Real inbox</span>
+          <span class="feat">🌐 Books online</span>
+        </div>
+      </section>
+
+      <section>
+        <div class="phone-wrap">
+          <div class="phone">
+            <div class="notch"></div>
+            <div class="status-bar">
+              <span id="phoneTime">9:41</span>
+              <span class="right">
+                <svg width="16" height="11" viewBox="0 0 16 11" fill="white"><path d="M0 8h2v3H0zm4-2h2v5H4zm4-3h2v8H8zm4-3h2v11h-2z"/></svg>
+                <svg width="14" height="11" viewBox="0 0 14 11" fill="white"><path d="M7 1.5C9 1.5 10.8 2.3 12 3.5l1.5-1.5C12 .5 9.6-.5 7-.5S2 .5.5 2L2 3.5C3.2 2.3 5 1.5 7 1.5zm0 3c1.4 0 2.6.6 3.5 1.5l1.5-1.5C10.7 3 8.9 2 7 2s-3.7 1-5 2.5L3.5 6C4.4 5.1 5.6 4.5 7 4.5zm0 3c.8 0 1.6.3 2.1.9l1.5-1.5C9.6 6 8.3 5.5 7 5.5s-2.6.5-3.6 1.4l1.5 1.5C5.4 7.8 6.2 7.5 7 7.5z"/></svg>
+                <span style="display:inline-flex;align-items:center;gap:2px"><span style="width:22px;height:11px;border:1px solid white;border-radius:2px;padding:1px"><span style="display:block;width:100%;height:100%;background:white;border-radius:1px"></span></span></span>
+              </span>
+            </div>
+            <div class="im-head">
+              <div class="av">Q</div>
+              <div class="name">Q <span class="check">✓</span></div>
+              <div class="sub">+1 (415) — your AI</div>
+            </div>
+            <div class="thread" id="thread"></div>
+            <div class="convo-cta" id="convoCta">
+              <div class="convo-cta-text">Want this on YOUR phone? 👇</div>
+              <a href="/subscribe.html" class="convo-cta-btn">Get yours — $0.66/day →</a>
+            </div>
+            <div class="compose">
+              <div class="compose-input">iMessage</div>
+              <div class="compose-arrow dim">↑</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="suggests" style="margin-left:auto;margin-right:auto;">
+          <div class="suggest-label" id="suggestLabel">↓ TAP TO REPLY</div>
+          <div class="suggest-row" id="suggestRow"></div>
+        </div>
+      </section>
+    </main>
+
+    <div id="recentTicker" class="recent-ticker">
+      <div class="label">JUST CLAIMED</div>
+      <div class="who" id="recentName">—</div>
+      <div class="when" id="recentWhen">—</div>
+    </div>
+
+    <div class="sticky-cta" id="stickyCta">
+      <div class="sticky-row">
+        <div class="sticky-left">
+          <div class="sticky-price"><span class="grad">$0.66</span> / day</div>
+          <div class="sticky-line"><span class="warn">Locks in $20/mo before <span id="priceJumpDate">May 17</span></span> · cancel in 1 tap</div>
+        </div>
+        <a href="/subscribe.html" class="sticky-cta-btn">Get yours →</a>
+      </div>
+    </div>
+
+    <script>
+      // ─── Conversation script — drives the dopamine ladder ──────
+      const CONVO = [
+        {
+          them: "hey 👋 I'm Q. your new AI. you can text me anything.",
+          options: [
+            { label: "what can you do?", key: "what" },
+            { label: "call my mom for me", key: "callmom" },
+            { label: "reply to my landlord", key: "landlord" },
+          ],
+        },
+        {
+          when: "what",
+          them: "anything you'd ask a real assistant. I have a real phone (this one) and email. I can:\n\n• call people for you\n• reply to your inbox\n• book stuff online\n• cancel subscriptions\n• research things\n\ntry me — what do you actually need done?",
+          options: [
+            { label: "cancel my Comcast", key: "comcast" },
+            { label: "book NYC flight under $300", key: "flight" },
+            { label: "find me a 1BR in Brooklyn", key: "apt" },
+          ],
+        },
+        {
+          when: "callmom",
+          me: "call my mom for me",
+          them: "ok — what's her number, and what should I say?",
+          options: [
+            { label: "tell her I'm running 20 min late", key: "late" },
+            { label: "wish her happy birthday", key: "bday" },
+          ],
+        },
+        {
+          when: "landlord",
+          me: "reply to my landlord",
+          them: "got it. what does the email say?",
+          options: [
+            { label: "rent is due — ask for 1 week extension", key: "ext" },
+            { label: "complain about broken AC", key: "ac" },
+          ],
+        },
+        {
+          when: "comcast",
+          me: "cancel my Comcast",
+          them: "on it. dialing 1-800-COMCAST now... 📞\n\n*hold music*\n\nI'm with retention. they offered $50/mo. I'm pushing for $35. give me a sec.",
+          delay: 1800,
+          options: [
+            { label: "go for $35", key: "push" },
+            { label: "actually keep it at $50", key: "keep" },
+          ],
+        },
+        {
+          when: "flight",
+          me: "find me a flight to NYC under $300 next weekend",
+          them: "scanning Google Flights, Kayak, Skyscanner...\n\nfound it: Frontier Sat 7:42am · $247 round-trip. nonstop.\n\nbook it?",
+          delay: 1800,
+          options: [
+            { label: "book it", key: "book" },
+            { label: "find something earlier", key: "earlier" },
+          ],
+        },
+        {
+          when: "apt",
+          me: "find me a 1BR in Brooklyn under $2,500",
+          them: "scraping Zillow, StreetEasy, Apartments.com...\n\nfound 47. ranked by recent activity.\n\nDM the top 10? I'll ask each if they take dogs.",
+          options: [
+            { label: "yes, DM them", key: "dm" },
+            { label: "show me top 3 first", key: "top3" },
+          ],
+        },
+        {
+          when: "late", me: "tell her I'm running 20 minutes late",
+          them: "calling now... \n\n*ring* *ring*\n\n\"Hi Mrs. Smith, this is Q calling on behalf of Alex. He's running about 20 min late but wanted me to let you know — see you soon!\"\n\nshe says no worries, drive safe ❤️",
+          isFinal: true,
+        },
+        {
+          when: "bday", me: "wish her happy birthday",
+          them: "calling now 🎂\n\n*ring* *ring*\n\nleft her a voicemail singing happy birthday in 3 different voices because I thought it'd be funnier. you wanna hear it?",
+          isFinal: true,
+        },
+        {
+          when: "ext", me: "ask for a one-week extension on rent",
+          them: "drafted:\n\n\"Hi Mark, hope you're well. Rent is going to be 7 days late this month — got hit with an unexpected expense. Can we push it to the 8th? I'll have it in full then. Thanks for understanding.\"\n\nsend it?",
+          isFinal: true,
+        },
+        {
+          when: "ac", me: "complain about broken AC",
+          them: "drafted:\n\n\"Hi Mark, the AC stopped working Tuesday — it's 91° in here. I have a 2-yo and this isn't tenable. Can we get a tech out by Friday? Happy to coordinate. Thanks.\"\n\nsend it?",
+          isFinal: true,
+        },
+        { when: "push", me: "go for $35", them: "got them down to $35/mo locked for 12 months. saved you $312/yr. confirmation email coming through to you in a sec. ✓", isFinal: true },
+        { when: "keep", me: "keep it at $50", them: "kept at $50/mo, no change. honestly $35 was on the table — your call though 🤷", isFinal: true },
+        { when: "book", me: "book it", them: "booked. Frontier confirmation #FR8472KZ. seat 14C. arrives JFK 11:08am. confirmation in your inbox. ✓", isFinal: true },
+        { when: "earlier", me: "find something earlier", them: "JetBlue 6:00am · $284 round-trip · nonstop. it's $37 more for a 1h45m earlier landing. worth it?", isFinal: true },
+        { when: "dm", me: "yes, DM them", them: "DMing now... \n\nsent 10 inquiries asking about dog policy, move-in date, and lease length. replies will come straight to you. expect responses tonight.", isFinal: true },
+        { when: "top3", me: "show me top 3 first", them: "top 3 by activity:\n\n1. Bushwick · $2,150 · 3 photos · listed today\n2. Crown Heights · $2,400 · 12 photos · listed yesterday\n3. Williamsburg · $2,495 · 8 photos · listed 3 days ago\n\nshould I DM them?", isFinal: true },
+      ];
+
+      const thread = document.getElementById("thread");
+      const suggestRow = document.getElementById("suggestRow");
+      const suggestLabel = document.getElementById("suggestLabel");
+      const convoCta = document.getElementById("convoCta");
+      const stickyCta = document.getElementById("stickyCta");
+
+      let convoStep = 0; // index into the CONVO timeline
+      let exchangeCount = 0; // total user replies
+
+      function addMsg(text, who) {
+        const row = document.createElement("div");
+        row.className = `msg-row ${who}`;
+        const m = document.createElement("div");
+        m.className = "msg";
+        m.textContent = text;
+        row.appendChild(m);
+        thread.appendChild(row);
+        thread.scrollTop = thread.scrollHeight;
+        return row;
+      }
+
+      function addTyping() {
+        const row = document.createElement("div");
+        row.className = "msg-row them";
+        row.innerHTML = '<div class="typing"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>';
+        thread.appendChild(row);
+        thread.scrollTop = thread.scrollHeight;
+        return row;
+      }
+
+      function setSuggestions(opts) {
+        suggestRow.innerHTML = "";
+        if (!opts || opts.length === 0) {
+          suggestLabel.style.display = "none";
+          return;
+        }
+        suggestLabel.style.display = "block";
+        opts.forEach((o) => {
+          const b = document.createElement("button");
+          b.className = "suggest";
+          b.textContent = o.label;
+          b.addEventListener("click", () => handleReply(o));
+          suggestRow.appendChild(b);
+        });
+      }
+
+      async function showThemMessage(node) {
+        const typing = addTyping();
+        const delay = node.delay || (1100 + Math.random() * 600);
+        await new Promise((r) => setTimeout(r, delay));
+        typing.remove();
+        addMsg(node.them, "them");
+        setSuggestions(node.options);
+      }
+
+      async function handleReply(opt) {
+        // Find the next convo node by key
+        const next = CONVO.find((n) => n.when === opt.key);
+        if (!next) return;
+
+        suggestRow.innerHTML = ""; // disable buttons immediately
+        suggestLabel.style.display = "none";
+
+        // Show user's message
+        addMsg(next.me || opt.label, "me");
+        await new Promise((r) => setTimeout(r, 400));
+
+        // Show AI response
+        await showThemMessage(next);
+        exchangeCount++;
+
+        // After 2-3 exchanges, escalate to CTA
+        if (exchangeCount >= 2 && !stickyCta.classList.contains("show")) {
+          stickyCta.classList.add("show");
+        }
+        if (next.isFinal) {
+          await new Promise((r) => setTimeout(r, 1200));
+          convoCta.classList.add("show");
+          stickyCta.classList.add("show");
+        }
+      }
+
+      // Kick off
+      (async () => {
+        // Start with a delay so it feels arriving in real-time
+        await new Promise((r) => setTimeout(r, 700));
+        await showThemMessage(CONVO[0]);
+      })();
+
+      // Phone time
+      function updateTime() {
+        const d = new Date();
+        const h = d.getHours();
+        const m = String(d.getMinutes()).padStart(2, "0");
+        document.getElementById("phoneTime").textContent = `${h}:${m}`;
+      }
+      updateTime(); setInterval(updateTime, 30000);
+
+      // Slot count + price date
+      (async () => {
+        try {
+          const r = await fetch("/api/payments/slots");
+          const j = await r.json();
+          if (j.ok) {
+            document.getElementById("topTaken").textContent = j.taken;
+            if (j.pricing?.priceIncreaseDate) {
+              const d = new Date(j.pricing.priceIncreaseDate);
+              const formatted = d.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+              const el = document.getElementById("priceJumpDate");
+              if (el) el.textContent = formatted;
+            }
+          }
+        } catch {}
+      })();
+
+      // Recent signup ticker
+      const TICKER = [
+        { name: "Alex M.", where: "Brooklyn" }, { name: "Sarah K.", where: "Austin" },
+        { name: "Marcus R.", where: "London" }, { name: "Emma T.", where: "Toronto" },
+        { name: "Jordan P.", where: "Berlin" }, { name: "Leo S.", where: "Sydney" },
+        { name: "Yara F.", where: "Amsterdam" }, { name: "Rico B.", where: "Miami" },
+        { name: "Mia L.", where: "Chicago" }, { name: "Nikko C.", where: "LA" },
+      ];
+      function startTicker() {
+        const el = document.getElementById("recentTicker");
+        const name = document.getElementById("recentName");
+        const when = document.getElementById("recentWhen");
+        const cycle = async () => {
+          await new Promise((r) => setTimeout(r, 9000 + Math.random() * 5000));
+          const t = TICKER[Math.floor(Math.random() * TICKER.length)];
+          const minutes = Math.max(1, Math.floor(Math.random() * 14));
+          name.textContent = `${t.name} · ${t.where}`;
+          when.textContent = `${minutes} min ago`;
+          el.classList.add("show");
+          await new Promise((r) => setTimeout(r, 4500));
+          el.classList.remove("show");
+          cycle();
+        };
+        cycle();
+      }
+      setTimeout(startTicker, 6000);
+    </script>
+  </body>
+</html>
