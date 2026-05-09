@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Q</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --bg: #0a0a0b;
+        --bg-2: #111114;
+        --fg: #f5f5f7;
+        --fg-muted: #a1a1aa;
+        --border: rgba(255,255,255,0.08);
+        --accent: #00ffd1;
+        --accent-2: #7c5cff;
+      }
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      html, body {
+        min-height: 100%;
+        background: var(--bg);
+        color: var(--fg);
+        font-family: 'Inter', system-ui, sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      body {
+        background:
+          radial-gradient(circle at 20% 10%, rgba(124,92,255,0.18) 0%, transparent 40%),
+          radial-gradient(circle at 80% 90%, rgba(0,255,209,0.15) 0%, transparent 40%),
+          var(--bg);
+        min-height: 100vh;
+      }
+      .wrap { max-width: 720px; margin: 0 auto; padding: 40px 24px 80px; }
+      .top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 36px; }
+      .brand { display: flex; align-items: center; gap: 8px; font-weight: 700; font-size: 18px; }
+      .brand-dot { width: 8px; height: 8px; border-radius: 999px; background: var(--accent); box-shadow: 0 0 12px var(--accent); }
+      .signout {
+        background: transparent; border: 1px solid var(--border);
+        color: var(--fg-muted); padding: 6px 14px; border-radius: 999px;
+        font-size: 13px; font-family: inherit; cursor: pointer;
+        transition: all 200ms ease;
+      }
+      .signout:hover { border-color: rgba(255,255,255,0.2); color: var(--fg); }
+
+      .hero {
+        text-align: center; margin-bottom: 40px;
+      }
+      .live-pill {
+        display: inline-flex; align-items: center; gap: 6px;
+        background: rgba(0,255,209,0.1); color: var(--accent);
+        font-size: 12px; font-weight: 600; padding: 6px 12px; border-radius: 999px;
+        margin-bottom: 14px;
+      }
+      .live-dot { width: 6px; height: 6px; border-radius: 999px; background: var(--accent); animation: pulse 1.5s ease infinite; }
+      @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+      h1 {
+        font-size: clamp(34px, 6vw, 56px);
+        font-weight: 800; letter-spacing: -0.02em; line-height: 1.05; margin-bottom: 10px;
+      }
+      .grad {
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+        -webkit-background-clip: text; background-clip: text; color: transparent;
+      }
+      .sub { color: var(--fg-muted); font-size: 16px; }
+
+      .card {
+        background: linear-gradient(180deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        padding: 28px;
+        margin-bottom: 20px;
+      }
+
+      .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+      @media (max-width: 540px) { .info-grid { grid-template-columns: 1fr; } }
+      .info { padding: 18px; background: rgba(0,0,0,0.2); border-radius: 14px; border: 1px solid var(--border); }
+      .info-icon { font-size: 20px; margin-bottom: 8px; }
+      .info-label { color: var(--fg-muted); font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 4px; }
+      .info-value { font-family: 'JetBrains Mono', monospace; font-size: 16px; font-weight: 600; word-break: break-all; }
+
+      .actions { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 8px; }
+      @media (max-width: 540px) { .actions { grid-template-columns: 1fr; } }
+      .action {
+        background: rgba(255,255,255,0.04); border: 1px solid var(--border);
+        color: var(--fg); padding: 18px; border-radius: 16px;
+        text-align: center; cursor: pointer; text-decoration: none;
+        font-size: 15px; font-weight: 600; font-family: inherit;
+        transition: all 200ms ease;
+        display: flex; flex-direction: column; align-items: center; gap: 8px;
+      }
+      .action:hover { border-color: rgba(0,255,209,0.5); background: rgba(0,255,209,0.05); }
+      .action-icon { font-size: 22px; }
+      .action.primary {
+        background: linear-gradient(135deg, var(--accent) 0%, var(--accent-2) 100%);
+        color: #0a0a0b; border: none;
+        box-shadow: 0 10px 32px rgba(0,255,209,0.18);
+      }
+      .action.primary:hover { transform: translateY(-1px); box-shadow: 0 14px 40px rgba(0,255,209,0.28); }
+
+      .trial-banner {
+        background: rgba(124,92,255,0.08); border: 1px solid rgba(124,92,255,0.25);
+        border-radius: 14px; padding: 12px 16px; margin-bottom: 20px;
+        font-size: 13px; color: var(--fg-muted); text-align: center;
+      }
+      .trial-banner b { color: var(--fg); }
+
+      .loading { text-align: center; padding: 80px 0; color: var(--fg-muted); }
+      .spinner {
+        width: 40px; height: 40px;
+        border: 3px solid rgba(255,255,255,0.08);
+        border-top-color: var(--accent);
+        border-radius: 50%;
+        animation: spin 700ms linear infinite;
+        margin: 0 auto 16px;
+      }
+      @keyframes spin { to { transform: rotate(360deg); } }
+
+      .provisioning-note {
+        font-size: 12px; color: var(--fg-muted); margin-top: 10px; text-align: center;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <div class="top">
+        <div class="brand"><span class="brand-dot"></span> Q</div>
+        <button class="signout" id="signout">Sign out</button>
+      </div>
+
+      <div id="loading" class="loading">
+        <div class="spinner"></div>
+        Loading your AI...
+      </div>
+
+      <div id="content" style="display:none">
+        <div class="hero">
+          <div class="live-pill"><span class="live-dot"></span> Live</div>
+          <h1><span id="aiName" class="grad">Your AI</span> is awake.</h1>
+          <p class="sub">Just message it. Call it. Email it. It's already on.</p>
+        </div>
+
+        <div id="trialBanner" class="trial-banner" style="display:none">
+          <b>Trial active</b> · You have <span id="trialDays">7</span> days free, then $20/mo.
+        </div>
+
+        <div class="card">
+          <div class="info-grid">
+            <div class="info">
+              <div class="info-icon">📞</div>
+              <div class="info-label">Phone</div>
+              <div class="info-value" id="phone">—</div>
+            </div>
+            <div class="info">
+              <div class="info-icon">📧</div>
+              <div class="info-label">Email</div>
+              <div class="info-value" id="email">—</div>
+            </div>
+          </div>
+          <p class="provisioning-note" id="provisioningNote" style="display:none">
+            ⚙️ Still finalizing your number — refresh in a moment.
+          </p>
+        </div>
+
+        <div class="actions">
+          <a class="action primary" href="/chat.html">
+            <span class="action-icon">💬</span>
+            Chat
+          </a>
+          <a class="action" id="callBtn" href="#">
+            <span class="action-icon">📞</span>
+            Call your AI
+          </a>
+          <a class="action" href="/setup">
+            <span class="action-icon">⚙️</span>
+            Settings
+          </a>
+        </div>
+
+        <div style="text-align:center;margin-top:32px">
+          <button id="manageBtn" class="signout">Manage billing · cancel</button>
+        </div>
+      </div>
+
+      <!-- Rate-limit modal -->
+      <div id="rateLimitModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.7);backdrop-filter:blur(8px);z-index:50;align-items:center;justify-content:center;padding:24px">
+        <div class="card" style="max-width:420px;width:100%;text-align:center;margin-bottom:0">
+          <div style="font-size:42px;margin-bottom:8px">⏳</div>
+          <h2 style="font-size:24px;font-weight:700;margin-bottom:8px">Daily limit reached</h2>
+          <p style="color:var(--fg-muted);font-size:14px;margin-bottom:20px">You've used all your messages for today. Resets at midnight UTC.</p>
+          <button class="action primary" onclick="document.getElementById('rateLimitModal').style.display='none'" style="padding:14px 24px;width:auto;display:inline-flex">Got it</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      async function load() {
+        const res = await fetch("/api/profile/me");
+        if (res.status === 401) { location.href = "/login.html"; return; }
+        if (res.status === 402) { location.href = "/subscribe.html"; return; }
+        const data = await res.json();
+        if (!data.ok) return;
+
+        document.getElementById("loading").style.display = "none";
+        document.getElementById("content").style.display = "block";
+
+        const p = data.profile || {};
+        const sub = data.subscription || {};
+
+        document.getElementById("aiName").textContent = p.ai_name || "Your AI";
+
+        const phone = p.real_number || p.reserved_number || "—";
+        document.getElementById("phone").textContent = phone;
+        document.getElementById("email").textContent = p.reserved_email || "—";
+
+        // Make phone clickable as tel: if it's a real-looking number
+        const callBtn = document.getElementById("callBtn");
+        if (phone && phone.includes("(")) {
+          callBtn.href = "tel:" + phone.replace(/\D/g, "");
+        }
+
+        // Show "still finalizing" if not yet provisioned
+        if (!p.provisioned_at && !p.real_number) {
+          document.getElementById("provisioningNote").style.display = "block";
+        }
+
+        if (sub.status === "trialing" && sub.current_period_end) {
+          const daysLeft = Math.max(0, Math.ceil(
+            (new Date(sub.current_period_end) - Date.now()) / 86400000,
+          ));
+          document.getElementById("trialDays").textContent = daysLeft;
+          document.getElementById("trialBanner").style.display = "block";
+        }
+      }
+
+      document.getElementById("signout").addEventListener("click", async () => {
+        await fetch("/api/auth/logout", { method: "POST" });
+        location.href = "/login.html";
+      });
+
+      document.getElementById("manageBtn").addEventListener("click", async () => {
+        const btn = document.getElementById("manageBtn");
+        btn.textContent = "Opening...";
+        const res = await fetch("/api/payments/portal", { method: "POST" });
+        const data = await res.json();
+        if (data.ok && data.url) {
+          location.href = data.url;
+        } else {
+          btn.textContent = data.error || "Manage billing · cancel";
+          setTimeout(() => { btn.textContent = "Manage billing · cancel"; }, 2500);
+        }
+      });
+
+      // Global 429 catcher → show rate-limit modal
+      const _fetch = window.fetch;
+      window.fetch = async (...args) => {
+        const res = await _fetch(...args);
+        if (res.status === 429) {
+          document.getElementById("rateLimitModal").style.display = "flex";
+        }
+        return res;
+      };
+
+      load();
+    </script>
+  </body>
+</html>

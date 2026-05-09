@@ -3,11 +3,8 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>alphaclaw</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+    <title>Q · Sign in</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
     <link rel="icon" type="image/svg+xml" href="./img/logo.svg" />
     <link rel="stylesheet" href="./css/theme.css" />
     <link rel="stylesheet" href="./css/tailwind.generated.css" />
@@ -23,101 +20,86 @@
   <body class="min-h-screen flex items-center justify-center p-4">
     <div class="max-w-sm w-full relative z-10">
       <div class="text-center mb-6">
-        <img
-          src="./img/logo.svg"
-          alt="alphaclaw"
-          class="mx-auto mb-4"
-          width="48"
-          height="49"
-        />
-        <h1 class="text-2xl font-semibold mb-2">
-          <span style="color: var(--accent)">alpha</span>claw
-        </h1>
-        <p style="color: var(--text-muted)" class="text-xs mb-4">
-          OpenClaw made easy
-        </p>
+        <img src="./img/logo.svg" alt="logo" class="mx-auto mb-4" width="48" height="49" />
+        <h1 class="text-5xl font-extrabold mb-1" style="color:var(--accent);letter-spacing:-0.04em">Q</h1>
+        <p style="color:var(--text-muted)" class="text-xs">Sign in to your AI</p>
       </div>
-      <form
-        id="login-form"
-        class="bg-surface border border-border rounded-xl p-4 space-y-3"
-      >
-        <input
-          id="password"
-          type="password"
-          placeholder="Password"
-          autofocus
+
+      <form id="login-form" class="bg-surface border border-border rounded-xl p-4 space-y-3">
+        <input id="email" type="email" placeholder="Email" autocomplete="email"
           class="w-full bg-field border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-fg-muted"
-          style="color: var(--text)"
-        />
+          style="color:var(--text)" />
+        <input id="password" type="password" placeholder="Password" autocomplete="current-password"
+          class="w-full bg-field border border-border rounded-lg px-3 py-2 text-sm outline-none focus:border-fg-muted"
+          style="color:var(--text)" />
         <div id="error" class="text-status-error-muted text-xs hidden"></div>
-        <button
-          id="submit-btn"
-          type="submit"
-          disabled
-          class="w-full text-sm font-medium px-4 py-2 rounded-lg ac-btn-cyan"
-        >
-          Enter
+        <button id="submit-btn" type="submit"
+          class="w-full text-sm font-medium px-4 py-2 rounded-lg ac-btn-cyan">
+          Sign in
         </button>
+        <button type="button" id="magic-btn"
+          class="w-full text-sm px-4 py-2 rounded-lg border border-border"
+          style="color:var(--text-muted)">
+          Send magic link instead
+        </button>
+        <p class="text-center text-xs" style="color:var(--text-muted)">
+          No account? <a href="/subscribe.html" style="color:var(--accent)">Get started</a>
+        </p>
       </form>
+
+      <div id="magic-sent" class="hidden text-center text-sm mt-4" style="color:var(--text-muted)">
+        Check your email for a magic link.
+      </div>
     </div>
-    <script>
-      const formEl = document.getElementById("login-form");
-      const passwordEl = document.getElementById("password");
-      const submitButtonEl = document.getElementById("submit-btn");
 
-      const syncButtonState = () => {
-        const hasValue = passwordEl.value.length > 0;
-        submitButtonEl.disabled = !hasValue;
-      };
+    <script type="module">
+      import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm";
 
-      passwordEl.addEventListener("input", syncButtonState);
+      const SUPABASE_URL = "%%SUPABASE_URL%%";
+      const SUPABASE_ANON_KEY = "%%SUPABASE_ANON_KEY%%";
+      const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-      const setPendingState = (isPending) => {
-        submitButtonEl.disabled = isPending;
-        submitButtonEl.classList.toggle("opacity-70", isPending);
-        submitButtonEl.classList.toggle("cursor-not-allowed", isPending);
-      };
+      // Handle magic-link redirect (token in URL hash)
+      const hash = Object.fromEntries(new URLSearchParams(location.hash.slice(1)));
+      if (hash.access_token) exchangeAndRedirect(hash.access_token);
 
-      formEl.addEventListener("submit", async (e) => {
+      async function exchangeAndRedirect(token) {
+        const res = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ access_token: token }),
+        });
+        const data = await res.json();
+        if (data.ok) { location.href = "/setup"; return; }
+        showError(data.error || "Auth failed");
+      }
+
+      function showError(msg) {
+        const el = document.getElementById("error");
+        el.textContent = msg;
+        el.classList.remove("hidden");
+      }
+
+      document.getElementById("login-form").addEventListener("submit", async (e) => {
         e.preventDefault();
+        const email = document.getElementById("email").value.trim();
         const password = document.getElementById("password").value;
-        const errorEl = document.getElementById("error");
-        errorEl.classList.add("hidden");
-        setPendingState(true);
-        try {
-          const res = await fetch("/api/auth/login", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ password }),
-          });
-          const data = await res.json();
-          if (data.ok) {
-            window.location.href = "/";
-          } else {
-            if (res.status === 429) {
-              const retryAfterFromHeader = Number.parseInt(
-                res.headers.get("retry-after") || "0",
-                10,
-              );
-              const retryAfterSec =
-                Number.isFinite(data.retryAfterSec) && data.retryAfterSec > 0
-                  ? data.retryAfterSec
-                  : Number.isFinite(retryAfterFromHeader) &&
-                      retryAfterFromHeader > 0
-                    ? retryAfterFromHeader
-                    : 30;
-              errorEl.textContent = `Too many attempts. Try again in ${retryAfterSec}s.`;
-            } else {
-              errorEl.textContent = data.error || "Login failed";
-            }
-            errorEl.classList.remove("hidden");
-          }
-        } catch {
-          errorEl.textContent = "Connection error";
-          errorEl.classList.remove("hidden");
-        } finally {
-          setPendingState(false);
-        }
+        if (!email || !password) return showError("Email and password required");
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) return showError(error.message);
+        await exchangeAndRedirect(data.session.access_token);
+      });
+
+      document.getElementById("magic-btn").addEventListener("click", async () => {
+        const email = document.getElementById("email").value.trim();
+        if (!email) return showError("Enter your email first");
+        const { error } = await supabase.auth.signInWithOtp({
+          email,
+          options: { emailRedirectTo: location.origin + "/login.html" },
+        });
+        if (error) return showError(error.message);
+        document.getElementById("login-form").classList.add("hidden");
+        document.getElementById("magic-sent").classList.remove("hidden");
       });
     </script>
   </body>
