@@ -23,6 +23,7 @@
   ],
   "scripts": {
     "start": "node bin/alphaclaw.js start",
+    "build": "node scripts/build-ui.mjs",
     "build:ui": "node scripts/build-ui.mjs",
     "test": "vitest run",
     "test:watch": "vitest",
