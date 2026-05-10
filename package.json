@@ -28,9 +28,11 @@
     "test:watch": "vitest",
     "test:watchdog": "vitest run tests/server/watchdog.test.js tests/server/watchdog-db.test.js tests/server/routes-watchdog.test.js",
     "test:coverage": "vitest run --coverage",
+    "postinstall": "npx --yes playwright@1.59.1 install chromium --with-deps || echo 'playwright install skipped (non-fatal — browser tool will be unavailable)'",
     "prepack": "npm run build:ui"
   },
   "dependencies": {
+    "@chrysb/alphaclaw": "^0.9.15",
     "@supabase/supabase-js": "^2.105.3",
     "dodopayments": "^2.31.1",
     "express": "^4.21.0",

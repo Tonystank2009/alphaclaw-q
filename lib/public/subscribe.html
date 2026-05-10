@@ -523,39 +523,9 @@
       <!-- ───── SLIDE 2: PAYWALL ───── -->
       <div class="slide" id="s2">
         <div class="paywall-stack">
-          <div>
-            <div class="eyebrow">Step 2 of 2</div>
-            <h2>Lock it <span class="grad">in</span>.</h2>
-          </div>
 
-          <div class="cap-cycle" id="capCycle">
-            <div class="cap-line show"><span class="ic">📞</span><span class="cap-text">Calls Tony's. Books a table for 4 at 8pm.</span></div>
-          </div>
-
-          <div class="anchor-row">
-            <div class="anchor-cell">
-              <div class="lbl">Human VA</div>
-              <div class="val strike">$2,400/mo</div>
-            </div>
-            <div class="anchor-cell">
-              <div class="lbl">Hire intern</div>
-              <div class="val strike">$1,800/mo</div>
-            </div>
-            <div class="anchor-cell q">
-              <div class="lbl">Q</div>
-              <div class="val">$20/mo</div>
-            </div>
-          </div>
-
-          <div>
-            <div class="price-massive"><span class="grad">$0.66</span></div>
-            <div class="price-day-lbl">a day · less than your morning coffee</div>
-            <p class="price-mo">billed monthly · cancel in 1 tap</p>
-          </div>
-
-          <div class="price-warn">
-            🔒&nbsp;Price jumps to <strong>$50/mo</strong> on <strong id="paywallPriceDate">May 17</strong>. Lock <strong>$0.66/day for life</strong> today.
-          </div>
+          <div class="price-massive"><span class="grad">$1</span></div>
+          <div class="price-day-lbl">a day · less than a coffee</div>
 
           <div class="signup-fields">
             <input id="email-input"    type="email"    placeholder="Email" autocomplete="email" />
@@ -563,19 +533,12 @@
           </div>
 
           <button class="cta" id="finalCta" style="width:100%;max-width:380px;justify-content:center;font-size:18px;padding:20px 32px">
-            Claim my slot — $0.66/day →
+            Claim my slot →
           </button>
-
-          <div class="ship-promise">
-            <span class="ship-pulse"></span>
-            <strong>5 new features every week</strong>
-            <span class="ship-sub">— it gets smarter, faster, more useful — automatically</span>
-          </div>
 
           <div class="reassure">
             <span><span class="ic">✓</span>Cancel in 1 tap</span>
             <span><span class="ic">↺</span>7-day refund</span>
-            <span><span class="ic">🔒</span>256-bit encrypted</span>
           </div>
 
           <div class="err" id="err"></div>
@@ -861,12 +824,12 @@
             ({ data, error } = await supabase.auth.signInWithPassword({ email, password }));
           }
         } catch (e) {
-          finalCta.textContent = "Claim my slot — $0.66/day →";
+          finalCta.textContent = "Claim my slot — $1/day →";
           finalCta.disabled = false;
           return showErr(e.message);
         }
         if (error) {
-          finalCta.textContent = "Claim my slot — $0.66/day →";
+          finalCta.textContent = "Claim my slot — $1/day →";
           finalCta.disabled = false;
           return showErr(error.message);
         }
@@ -896,7 +859,7 @@
           });
           const j = await r.json();
           if (j.ok && j.redirect) { track("Test Claim"); location.href = j.redirect; return; }
-          finalCta.textContent = "Claim my slot — $0.66/day →";
+          finalCta.textContent = "Claim my slot — $1/day →";
           finalCta.disabled = false;
           showErr(j.error || "Could not provision");
           return;
@@ -910,7 +873,7 @@
         });
         const cod = await co.json();
         if (cod.ok && cod.url) { track("Checkout Redirect"); location.href = cod.url; return; }
-        finalCta.textContent = "Claim my slot — $0.66/day →";
+        finalCta.textContent = "Claim my slot — $1/day →";
         finalCta.disabled = false;
         showErr(cod.error || "Could not start checkout");
       });

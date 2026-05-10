@@ -3,11 +3,11 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
-    <title>Q · Your personal AI · $0.66/day</title>
-    <meta name="description" content="Your own personal AI with a real phone number, email, and computer." />
+    <title>Q · The AI that actually does things · $1/day</title>
+    <meta name="description" content="ChatGPT talks. Q does. It calls people, sends emails, browses the web, books reservations, fights with Comcast — all from one chat." />
     <meta name="theme-color" content="#000000" />
-    <meta property="og:title" content="Q · Your personal AI" />
-    <meta property="og:description" content="Tell it what to do. It calls, emails, books. $0.66 a day." />
+    <meta property="og:title" content="Q · The AI that actually does things" />
+    <meta property="og:description" content="Like ChatGPT — but it actually does the thing. Calls, emails, browses, books, fights, remembers. $1 a day." />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
@@ -237,10 +237,11 @@
 
       /* Capability cards */
       .cap-cards {
-        display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+        display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;
         width: 100%; margin-bottom: 24px;
       }
-      @media (max-width: 540px) { .cap-cards { grid-template-columns: 1fr; } }
+      @media (max-width: 720px) { .cap-cards { grid-template-columns: 1fr 1fr; } }
+      @media (max-width: 420px) { .cap-cards { grid-template-columns: 1fr; } }
       .cap-card {
         background: rgba(255,255,255,0.04); border: 1px solid var(--border);
         border-radius: 16px; padding: 18px;
@@ -408,45 +409,19 @@
 
       <main class="hero">
 
-        <h1>Stop doing<br/>the boring <span class="grad">sh*t</span>.</h1>
-        <p class="lead">An AI with a real phone, email, and computer. Tell it what to do — it actually does it.</p>
+        <h1>ChatGPT talks.<br/><span class="grad">Q does.</span></h1>
+        <p class="lead">Tell it what you need done. It calls, emails, books, browses — and reports back.</p>
 
         <div class="ai-prompt-box" id="promptBox">
           <div class="ai-prompt-row">
             <div class="ai-prompt-orb">Q</div>
             <input id="promptInput" class="ai-prompt-input" type="text" autocomplete="off"
-              placeholder="What do you want it to do?" />
-            <button id="promptSubmit" class="ai-prompt-submit">Generate phone + email →</button>
+              placeholder="What do you want done?" />
+            <button id="promptSubmit" class="ai-prompt-submit">→</button>
           </div>
         </div>
 
-        <div class="suggestions" id="suggestions">
-          <button class="suggest" data-prompt="Call my dentist and reschedule to next Wednesday after 4pm">📞 Call my dentist</button>
-          <button class="suggest" data-prompt="Reply to my landlord — ask for a one-week rent extension, polite but firm">📧 Reply to my landlord</button>
-          <button class="suggest" data-prompt="Find me a flight to NYC under $300 next weekend and book it">🌐 Book a flight</button>
-          <button class="suggest" data-prompt="Cancel my Comcast — handle the retention pitch, don't accept anything over $40/mo">📞 Cancel my Comcast</button>
-        </div>
-
-        <!-- Live countdown to price increase -->
-        <div class="countdown" id="countdown">
-          <span class="countdown-label">PRICE LOCKS IN</span>
-          <span class="countdown-time">
-            <span class="ct-num" id="ctd-d">—</span><span class="ct-unit">d</span>
-            <span class="ct-num" id="ctd-h">—</span><span class="ct-unit">h</span>
-            <span class="ct-num" id="ctd-m">—</span><span class="ct-unit">m</span>
-            <span class="ct-num" id="ctd-s">—</span><span class="ct-unit">s</span>
-          </span>
-        </div>
-
-        <p class="price-tease">
-          <strong>$0.66/day</strong> · then jumps to <strong style="color:#ffd76b">$50/mo</strong> · cancel anytime
-        </p>
-
-        <!-- Tiny testimonial -->
-        <div class="testi">
-          <div class="testi-quote">"It cancelled my Comcast and saved me $312/yr while I was sleeping. Best $20 I spend."</div>
-          <div class="testi-name">— Marcus R., founder · Brooklyn</div>
-        </div>
+        <p class="price-tease"><strong>$1/day</strong> · cancel anytime</p>
 
         <!-- Progressive reveal flow after submit -->
         <div class="reveal-flow" id="revealFlow">
@@ -462,7 +437,7 @@
             <button class="cta cta-step" id="step-gen-next" style="display:none">Yes, it can call for me <span class="cta-arrow">→</span></button>
           </div>
 
-          <!-- STEP 2: Voice + Computer capabilities -->
+          <!-- STEP 2: Capability spread -->
           <div class="reveal-step" id="step-caps">
             <div class="step-header">
               <div class="pulse-mini"></div>
@@ -471,13 +446,33 @@
             <div class="cap-cards">
               <div class="cap-card">
                 <div class="cap-ic">📞</div>
-                <div class="cap-name">Voice</div>
-                <div class="cap-line">It picks up calls. Calls people for you. Real voice. Real number.</div>
+                <div class="cap-name">Phone</div>
+                <div class="cap-line">Calls people for you. Picks up when they call back. Real voice, real number.</div>
+              </div>
+              <div class="cap-card">
+                <div class="cap-ic">📧</div>
+                <div class="cap-name">Email</div>
+                <div class="cap-line">Sends, replies, drafts in your tone. Triages your inbox. Its own address.</div>
               </div>
               <div class="cap-card">
                 <div class="cap-ic">🌐</div>
+                <div class="cap-name">Browser</div>
+                <div class="cap-line">Opens sites, clicks buttons, fills forms, books reservations. Like a person.</div>
+              </div>
+              <div class="cap-card">
+                <div class="cap-ic">💻</div>
                 <div class="cap-name">Computer</div>
-                <div class="cap-line">Books flights. Cancels subs. Fills forms. Browses for you.</div>
+                <div class="cap-line">Runs scripts. Edits docs. Generates files. Does the actual work.</div>
+              </div>
+              <div class="cap-card">
+                <div class="cap-ic">📁</div>
+                <div class="cap-name">Files</div>
+                <div class="cap-line">Reads, writes, organizes. Reports, spreadsheets, notes — generated and saved.</div>
+              </div>
+              <div class="cap-card">
+                <div class="cap-ic">🧠</div>
+                <div class="cap-name">Memory</div>
+                <div class="cap-line">Remembers your preferences, contacts, history. Gets sharper the more you use it.</div>
               </div>
             </div>
             <button class="cta cta-step" id="step-caps-next">Cool — name mine <span class="cta-arrow">→</span></button>
@@ -512,8 +507,8 @@
                 <span>Last step</span>
               </div>
               <div class="final-headline"><span id="finalAiName">Q</span> is <span class="grad">ready</span>.</div>
-              <div class="final-sub">Number, inbox, computer — locked in for <strong>$0.66/day</strong>.</div>
-              <a href="/subscribe.html" id="finalCta" class="cta cta-final">Make <span id="finalAiName2">Q</span> real → $0.66/day</a>
+              <div class="final-sub">Phone, email, browser, computer, files, memory — all yours for <strong>$1/day</strong>.</div>
+              <a href="/subscribe.html" id="finalCta" class="cta cta-final">Make <span id="finalAiName2">Q</span> real → $1/day</a>
               <div class="final-foot">cancel in 1 tap · 7-day refund · 256-bit encrypted</div>
             </div>
           </div>
