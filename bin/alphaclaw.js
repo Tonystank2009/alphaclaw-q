@@ -672,6 +672,42 @@ try {
 const configPath = path.join(openclawDir, "openclaw.json");
 const githubRepo = process.env.GITHUB_WORKSPACE_REPO;
 
+// Fresh container restore: if .git directory is missing but a workspace repo
+// is configured, clone it. This handles redeploys without a persistent volume.
+if (!fs.existsSync(path.join(openclawDir, ".git")) && githubRepo && process.env.GITHUB_TOKEN) {
+  try {
+    const repoSlug = String(githubRepo)
+      .replace(/^git@github\.com:/, "")
+      .replace(/^https:\/\/github\.com\//, "")
+      .replace(/\.git$/, "");
+    const cloneUrl = `https://x-access-token:${process.env.GITHUB_TOKEN}@github.com/${repoSlug}.git`;
+    console.log(`[alphaclaw] Bootstrapping workspace from ${repoSlug}...`);
+    const tmpDir = `${openclawDir}.bootstrap`;
+    try { fs.rmSync(tmpDir, { recursive: true, force: true }); } catch {}
+    execSync(`git clone --depth 1 ${quoteArg(cloneUrl)} ${quoteArg(tmpDir)}`, {
+      stdio: "ignore",
+    });
+    // Move contents of cloned dir into openclawDir (which exists, may be empty).
+    for (const entry of fs.readdirSync(tmpDir)) {
+      const src = path.join(tmpDir, entry);
+      const dst = path.join(openclawDir, entry);
+      try { fs.rmSync(dst, { recursive: true, force: true }); } catch {}
+      fs.renameSync(src, dst);
+    }
+    try { fs.rmSync(tmpDir, { recursive: true, force: true }); } catch {}
+    // Scrub the embedded token from the remote URL.
+    try {
+      execSync(`git remote set-url origin "https://github.com/${repoSlug}.git"`, {
+        cwd: openclawDir,
+        stdio: "ignore",
+      });
+    } catch {}
+    console.log(`[alphaclaw] Workspace cloned from origin`);
+  } catch (e) {
+    console.log(`[alphaclaw] Workspace clone failed: ${String(e.message || "").slice(0, 200)}`);
+  }
+}
+
 if (fs.existsSync(path.join(openclawDir, ".git"))) {
   if (githubRepo) {
     const repoUrl = githubRepo
