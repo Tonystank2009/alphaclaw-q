@@ -136,9 +136,22 @@ const resolveGithubRepoPath = (value) =>
 // 1. Resolve root directory (before requiring any lib/ modules)
 // ---------------------------------------------------------------------------
 
+// Railway mounts persistent volumes at /data by convention. If we see one,
+// route the alphaclaw root inside it so state survives redeploys without
+// requiring users to set ALPHACLAW_ROOT_DIR manually.
+const detectRailwayVolumeRoot = () => {
+  try {
+    if (fs.existsSync("/data") && fs.statSync("/data").isDirectory()) {
+      return "/data/alphaclaw";
+    }
+  } catch {}
+  return "";
+};
+
 const rootDir =
   flagValue(args, "--root-dir") ||
   process.env.ALPHACLAW_ROOT_DIR ||
+  detectRailwayVolumeRoot() ||
   path.join(os.homedir(), ".alphaclaw");
 
 process.env.ALPHACLAW_ROOT_DIR = rootDir;
