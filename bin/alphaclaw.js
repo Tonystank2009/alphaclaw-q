@@ -5,6 +5,33 @@ const fs = require("fs");
 const os = require("os");
 const path = require("path");
 const { execSync } = require("child_process");
+
+// CRITICAL: resolve ALPHACLAW_ROOT_DIR BEFORE requiring any module that depends
+// on lib/server/constants.js. constants.js reads ALPHACLAW_ROOT_DIR once at
+// load time, so if we require helpers/internal-files-migration first they'll
+// freeze the root path to ~/.alphaclaw and ignore the Railway /data volume.
+const args = process.argv.slice(2);
+const flagValueEarly = (argv, ...flags) => {
+  for (const flag of flags) {
+    const idx = argv.indexOf(flag);
+    if (idx !== -1 && idx + 1 < argv.length) return argv[idx + 1];
+  }
+  return undefined;
+};
+const detectRailwayVolumeRootEarly = () => {
+  try {
+    if (fs.existsSync("/data") && fs.statSync("/data").isDirectory()) {
+      return "/data/alphaclaw";
+    }
+  } catch {}
+  return "";
+};
+process.env.ALPHACLAW_ROOT_DIR =
+  flagValueEarly(args, "--root-dir") ||
+  process.env.ALPHACLAW_ROOT_DIR ||
+  detectRailwayVolumeRootEarly() ||
+  path.join(os.homedir(), ".alphaclaw");
+
 const {
   normalizeGitSyncFilePath,
   validateGitSyncFilePath,
@@ -29,10 +56,8 @@ const kUsageTrackerPluginPath = path.resolve(
 );
 
 // ---------------------------------------------------------------------------
-// Parse CLI flags
+// Parse CLI flags (args was already collected at the top of the file).
 // ---------------------------------------------------------------------------
-
-const args = process.argv.slice(2);
 
 const flagValue = (argv, ...flags) => {
   for (const flag of flags) {
@@ -133,28 +158,11 @@ const resolveGithubRepoPath = (value) =>
     .replace(/\.git$/, "");
 
 // ---------------------------------------------------------------------------
-// 1. Resolve root directory (before requiring any lib/ modules)
+// 1. Root directory was already resolved at the top of this file. Re-bind so
+//    the rest of the script can reference it.
 // ---------------------------------------------------------------------------
 
-// Railway mounts persistent volumes at /data by convention. If we see one,
-// route the alphaclaw root inside it so state survives redeploys without
-// requiring users to set ALPHACLAW_ROOT_DIR manually.
-const detectRailwayVolumeRoot = () => {
-  try {
-    if (fs.existsSync("/data") && fs.statSync("/data").isDirectory()) {
-      return "/data/alphaclaw";
-    }
-  } catch {}
-  return "";
-};
-
-const rootDir =
-  flagValue(args, "--root-dir") ||
-  process.env.ALPHACLAW_ROOT_DIR ||
-  detectRailwayVolumeRoot() ||
-  path.join(os.homedir(), ".alphaclaw");
-
-process.env.ALPHACLAW_ROOT_DIR = rootDir;
+const rootDir = process.env.ALPHACLAW_ROOT_DIR;
 
 const portFlag = flagValue(args, "--port");
 if (portFlag) {
