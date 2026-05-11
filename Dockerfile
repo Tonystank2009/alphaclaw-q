@@ -7,15 +7,18 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 WORKDIR /app
 
-# Install deps (cache layer)
+# Install ALL deps (build needs esbuild from devDependencies)
 COPY package.json package-lock.json* ./
-RUN npm ci --omit=dev || npm install --omit=dev
+RUN npm ci || npm install
 
 # Copy source
 COPY . .
 
 # Build the setup UI bundle
 RUN npm run build
+
+# Prune dev deps after build to keep runtime image small
+RUN npm prune --omit=dev
 
 ENV NODE_ENV=production
 ENV PORT=3000
