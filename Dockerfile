@@ -2,7 +2,7 @@ FROM node:22-bookworm-slim
 
 # System tools alphaclaw expects: git (workspace backup), curl (gog install), cron (hourly sync)
 RUN apt-get update && apt-get install -y --no-install-recommends \
-      git ca-certificates curl cron procps tini \
+      git ca-certificates curl cron procps tini psmisc lsof \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
